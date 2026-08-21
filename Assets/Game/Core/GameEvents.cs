@@ -1,0 +1,95 @@
+using System;
+using StartupEmpire.Progression;
+
+namespace StartupEmpire.Core
+{
+    public readonly struct CustomerAcquiredEvent
+    {
+        public readonly string ProductId;
+        public readonly int NewPayingCustomers;
+
+        public CustomerAcquiredEvent(string productId, int newPayingCustomers)
+        {
+            ProductId = productId;
+            NewPayingCustomers = newPayingCustomers;
+        }
+    }
+
+    public readonly struct RevenueEarnedEvent
+    {
+        public readonly double Amount;
+        public readonly string SourceProductId;
+
+        public RevenueEarnedEvent(double amount, string sourceProductId)
+        {
+            Amount = amount;
+            SourceProductId = sourceProductId;
+        }
+    }
+
+    public readonly struct ProductLaunchedEvent
+    {
+        public readonly string ProductId;
+        public ProductLaunchedEvent(string productId) => ProductId = productId;
+    }
+
+    public readonly struct BugFoundEvent
+    {
+        public readonly string ProductId;
+        public readonly int Count;
+
+        public BugFoundEvent(string productId, int count)
+        {
+            ProductId = productId;
+            Count = count;
+        }
+    }
+
+    public readonly struct BugFixedEvent
+    {
+        public readonly string ProductId;
+        public readonly int Count;
+
+        public BugFixedEvent(string productId, int count)
+        {
+            ProductId = productId;
+            Count = count;
+        }
+    }
+
+    public readonly struct CompanyStageChangedEvent
+    {
+        public readonly CompanyStage PreviousStage;
+        public readonly CompanyStage NewStage;
+
+        public CompanyStageChangedEvent(CompanyStage previousStage, CompanyStage newStage)
+        {
+            PreviousStage = previousStage;
+            NewStage = newStage;
+        }
+    }
+
+    public readonly struct MissionCompletedEvent
+    {
+        public readonly string MissionId;
+        public MissionCompletedEvent(string missionId) => MissionId = missionId;
+    }
+
+    public readonly struct AchievementUnlockedEvent
+    {
+        public readonly string AchievementId;
+        public AchievementUnlockedEvent(string achievementId) => AchievementId = achievementId;
+    }
+
+    public readonly struct OfflineProgressAppliedEvent
+    {
+        public readonly TimeSpan ElapsedApplied;
+        public readonly double CashEarned;
+
+        public OfflineProgressAppliedEvent(TimeSpan elapsedApplied, double cashEarned)
+        {
+            ElapsedApplied = elapsedApplied;
+            CashEarned = cashEarned;
+        }
+    }
+}
