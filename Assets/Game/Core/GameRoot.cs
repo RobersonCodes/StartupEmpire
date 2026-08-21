@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using StartupEmpire.Achievements;
 using StartupEmpire.Competitors;
@@ -10,6 +11,8 @@ using StartupEmpire.Missions;
 using StartupEmpire.Premium;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
+using StartupEmpire.Ranking;
+using StartupEmpire.Referrals;
 using StartupEmpire.Research;
 using StartupEmpire.Save;
 using StartupEmpire.Store;
@@ -45,6 +48,12 @@ namespace StartupEmpire.Core
         public InvestmentService Investment { get; private set; }
         public GemWalletService Gems { get; private set; }
         public StoreService Store { get; private set; }
+        public RankingClientService Ranking { get; private set; }
+        public ReferralClientService Referrals { get; private set; }
+
+        /// URL do backend (seção 3 da missão: opcional, o jogo funciona sem isso).
+        /// Deixe vazio para usar os clientes nulos (offline-safe) por padrão.
+        [SerializeField] private string backendBaseUrl = "";
 
         private EconomyConfigValues _economyConfig;
         private float _autosaveTimer;
@@ -87,6 +96,15 @@ namespace StartupEmpire.Core
             CompetitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
             Investment = new InvestmentService(InvestmentCatalog.CreateDefaultCatalog(), Economy, EventBus);
             Store = new StoreService(StoreCatalog.CreateChapter1Catalog(), Gems, Economy, EventBus);
+
+            IRankingClient rankingClient = string.IsNullOrWhiteSpace(backendBaseUrl)
+                ? new NullRankingClient()
+                : new HttpRankingClient(backendBaseUrl);
+            IReferralClient referralClient = string.IsNullOrWhiteSpace(backendBaseUrl)
+                ? new NullReferralClient()
+                : new HttpReferralClient(backendBaseUrl);
+            Ranking = new RankingClientService(rankingClient);
+            Referrals = new ReferralClientService(referralClient, Gems);
 
             var storage = new FileSaveStorage();
             Save = new SaveService(storage, clock, Catalog, EmployeeCatalog, CompetitorCatalog);
@@ -205,6 +223,13 @@ namespace StartupEmpire.Core
             var item = Store.Find(storeItemId);
             return item != null && Store.TryPurchase(State, item);
         }
+
+        /// Nunca lança e nunca bloqueia o jogo se o backend estiver fora do ar
+        /// (RankingClientService já engole falhas de rede internamente).
+        public Task<bool> SubmitRankingAsync() => Ranking.SubmitAsync(State, State.Player.PlayerId, State.Player.Name);
+
+        public Task<bool> RedeemReferralCodeAsync(string code) =>
+            Referrals.RedeemAsync(State.GemWallet, code, State.Player.PlayerId);
 
         private void OnApplicationPause(bool pauseStatus)
         {
