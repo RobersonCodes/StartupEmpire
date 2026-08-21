@@ -20,6 +20,8 @@ namespace StartupEmpire.Save
             data.UnlockedAchievementIds ??= new List<string>();
             data.UpgradeLevels ??= new List<UpgradeLevelEntry>();
             data.Employees ??= new List<EmployeeSaveEntry>();
+            data.Competitors ??= new List<CompetitorSaveEntry>();
+            data.RaisedInvestmentRounds ??= new List<string>();
 
             return data;
         }

@@ -1,4 +1,5 @@
 using System;
+using StartupEmpire.Investment;
 using StartupEmpire.Progression;
 
 namespace StartupEmpire.Core
@@ -138,6 +139,20 @@ namespace StartupEmpire.Core
         {
             EventId = eventId;
             ChoiceId = choiceId;
+        }
+    }
+
+    public readonly struct InvestmentAcceptedEvent
+    {
+        public readonly InvestmentRoundType RoundType;
+        public readonly double CashAmount;
+        public readonly double EquityPercentGiven;
+
+        public InvestmentAcceptedEvent(InvestmentRoundType roundType, double cashAmount, double equityPercentGiven)
+        {
+            RoundType = roundType;
+            CashAmount = cashAmount;
+            EquityPercentGiven = equityPercentGiven;
         }
     }
 }

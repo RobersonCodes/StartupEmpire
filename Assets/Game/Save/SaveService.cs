@@ -1,8 +1,10 @@
 using System;
 using System.Globalization;
+using StartupEmpire.Competitors;
 using StartupEmpire.Core;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
+using StartupEmpire.Investment;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 
@@ -18,14 +20,16 @@ namespace StartupEmpire.Save
         private readonly IClock _clock;
         private readonly ProductDefinitionCatalog _productCatalog;
         private readonly EmployeeDefinitionCatalog _employeeCatalog;
+        private readonly CompetitorDefinitionCatalog _competitorCatalog;
 
         public SaveService(ISaveStorage storage, IClock clock, ProductDefinitionCatalog productCatalog,
-            EmployeeDefinitionCatalog employeeCatalog)
+            EmployeeDefinitionCatalog employeeCatalog, CompetitorDefinitionCatalog competitorCatalog)
         {
             _storage = storage ?? throw new ArgumentNullException(nameof(storage));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _productCatalog = productCatalog ?? throw new ArgumentNullException(nameof(productCatalog));
             _employeeCatalog = employeeCatalog ?? throw new ArgumentNullException(nameof(employeeCatalog));
+            _competitorCatalog = competitorCatalog ?? throw new ArgumentNullException(nameof(competitorCatalog));
         }
 
         public void Save(GameState state)
@@ -88,6 +92,24 @@ namespace StartupEmpire.Save
                     Specialization = employee.Specialization,
                     Satisfaction = employee.Satisfaction
                 });
+            }
+
+            foreach (var competitor in state.Competitors)
+            {
+                data.Competitors.Add(new CompetitorSaveEntry
+                {
+                    DefinitionId = competitor.Definition.Id,
+                    Users = competitor.Users,
+                    Valuation = competitor.Valuation,
+                    Reputation = competitor.Reputation,
+                    Quality = competitor.Quality,
+                    MarketShare = competitor.MarketShare
+                });
+            }
+
+            foreach (var roundType in state.RaisedInvestmentRounds)
+            {
+                data.RaisedInvestmentRounds.Add(roundType.ToString());
             }
 
             _storage.WriteRaw(SaveSerializer.Serialize(data));
@@ -178,6 +200,30 @@ namespace StartupEmpire.Save
                     Satisfaction = entry.Satisfaction
                 };
                 state.Employees.Employees.Add(employee);
+            }
+
+            foreach (var entry in data.Competitors)
+            {
+                var definition = _competitorCatalog.Find(entry.DefinitionId);
+                if (definition == null) continue;
+
+                var competitor = new CompetitorState(definition)
+                {
+                    Users = entry.Users,
+                    Valuation = entry.Valuation,
+                    Reputation = entry.Reputation,
+                    Quality = entry.Quality,
+                    MarketShare = entry.MarketShare
+                };
+                state.Competitors.Add(competitor);
+            }
+
+            foreach (var roundName in data.RaisedInvestmentRounds)
+            {
+                if (Enum.TryParse<InvestmentRoundType>(roundName, out var roundType))
+                {
+                    state.RaisedInvestmentRounds.Add(roundType);
+                }
             }
 
             return state;

@@ -1,9 +1,11 @@
 using UnityEngine;
 using StartupEmpire.Achievements;
+using StartupEmpire.Competitors;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
 using StartupEmpire.Events;
 using StartupEmpire.Idle;
+using StartupEmpire.Investment;
 using StartupEmpire.Missions;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
@@ -36,6 +38,9 @@ namespace StartupEmpire.Core
         public HiringService Hiring { get; private set; }
         public EventService Events { get; private set; }
         public EmployeeDefinitionCatalog EmployeeCatalog { get; private set; }
+        public CompetitorService Competitors { get; private set; }
+        public CompetitorDefinitionCatalog CompetitorCatalog { get; private set; }
+        public InvestmentService Investment { get; private set; }
 
         private EconomyConfigValues _economyConfig;
         private float _autosaveTimer;
@@ -73,15 +78,26 @@ namespace StartupEmpire.Core
             EmployeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
             Hiring = new HiringService(new HiringConfigValues(), Economy, EventBus);
             Events = new EventService(EventCatalog.CreateChapter1Catalog(), new EventConfigValues(), Economy, EventBus);
+            Competitors = new CompetitorService(new CompetitorConfigValues());
+            CompetitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            Investment = new InvestmentService(InvestmentCatalog.CreateDefaultCatalog(), Economy, EventBus);
 
             var storage = new FileSaveStorage();
-            Save = new SaveService(storage, clock, Catalog, EmployeeCatalog);
+            Save = new SaveService(storage, clock, Catalog, EmployeeCatalog, CompetitorCatalog);
             State = Save.Load(_economyConfig.StartingCash);
 
             if (State.Products.Count == 0)
             {
                 var definition = Catalog.Find("first_website");
                 State.Products.Add(new ProductState(definition));
+            }
+
+            if (State.Competitors.Count == 0)
+            {
+                foreach (var competitorDefinition in CompetitorCatalog.All)
+                {
+                    State.Competitors.Add(new CompetitorState(competitorDefinition));
+                }
             }
 
             var offlineSummary = Idle.ApplyOfflineProgress(State);
@@ -117,11 +133,22 @@ namespace StartupEmpire.Core
 
             Hiring.PaySalaries(State.Employees, State.Economy);
 
+            Competitors.RunCycle(State.Competitors, cycles);
+            var playerUsers = 0.0;
+            foreach (var product in State.Products) playerUsers += product.Users;
+            Competitors.RecomputeMarketShare(State.Competitors, playerUsers);
+
             Progression.TryAdvance(State);
             Missions.EvaluateAll(State);
             Achievements.EvaluateAll(State);
 
             PendingEvent = Events.TryTriggerRandomEvent(State);
+        }
+
+        public bool AcceptInvestmentOffer(InvestmentRoundType roundType)
+        {
+            var offer = Investment.Find(roundType);
+            return offer != null && Investment.TryAcceptOffer(State, offer);
         }
 
         /// Evento aleatório disparado no último RunGameCycle, aguardando a UI

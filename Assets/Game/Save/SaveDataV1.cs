@@ -18,8 +18,21 @@ namespace StartupEmpire.Save
         public List<string> UnlockedAchievementIds = new();
         public List<UpgradeLevelEntry> UpgradeLevels = new();
         public List<EmployeeSaveEntry> Employees = new();
+        public List<CompetitorSaveEntry> Competitors = new();
+        public List<string> RaisedInvestmentRounds = new();
         public string CompanyStage = "PessoaFisica";
         public string LastSavedUtcIso;
+    }
+
+    [Serializable]
+    public sealed class CompetitorSaveEntry
+    {
+        public string DefinitionId;
+        public double Users;
+        public double Valuation;
+        public double Reputation;
+        public double Quality;
+        public double MarketShare;
     }
 
     [Serializable]

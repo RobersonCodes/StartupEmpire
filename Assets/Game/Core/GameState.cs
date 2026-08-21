@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using StartupEmpire.Competitors;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
+using StartupEmpire.Investment;
 using StartupEmpire.Missions;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
@@ -20,6 +22,8 @@ namespace StartupEmpire.Core
         public HashSet<string> UnlockedAchievements { get; } = new();
         public UpgradeState Upgrades { get; } = new();
         public EmployeeRoster Employees { get; } = new();
+        public List<CompetitorState> Competitors { get; } = new();
+        public HashSet<InvestmentRoundType> RaisedInvestmentRounds { get; } = new();
         public DateTime LastSavedUtc { get; set; }
 
         public GameState(PlayerState player, EconomyState economy)

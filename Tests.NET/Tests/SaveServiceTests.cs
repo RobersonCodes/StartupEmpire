@@ -1,8 +1,10 @@
 using System;
+using StartupEmpire.Competitors;
 using StartupEmpire.Core;
 using StartupEmpire.Domain.Tests.TestSupport;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
+using StartupEmpire.Investment;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 using StartupEmpire.Research;
@@ -20,7 +22,8 @@ namespace StartupEmpire.Domain.Tests
             var storage = new InMemorySaveStorage();
             var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
             var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
-            var saveService = new SaveService(storage, clock, catalog, employeeCatalog);
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, clock, catalog, employeeCatalog, competitorCatalog);
 
             var player = new PlayerState { Name = "Ana" };
             player.AddKnowledge(KnowledgeTracks.Fundamentos, 42);
@@ -38,6 +41,8 @@ namespace StartupEmpire.Domain.Tests
                 Productivity = 1.5,
                 Satisfaction = 0.8
             });
+            state.Competitors.Add(new CompetitorState(competitorCatalog.Find("rival_startup")) { Users = 999 });
+            state.RaisedInvestmentRounds.Add(InvestmentRoundType.Angel);
 
             saveService.Save(state);
             var loaded = saveService.Load(startingCashIfNew: 0);
@@ -55,6 +60,10 @@ namespace StartupEmpire.Domain.Tests
             Assert.Single(loaded.Employees.Employees);
             Assert.Equal("backend_junior", loaded.Employees.Employees[0].Definition.Id);
             Assert.Equal(1.5, loaded.Employees.Employees[0].Productivity);
+            Assert.Single(loaded.Competitors);
+            Assert.Equal("rival_startup", loaded.Competitors[0].Definition.Id);
+            Assert.Equal(999, loaded.Competitors[0].Users);
+            Assert.Contains(InvestmentRoundType.Angel, loaded.RaisedInvestmentRounds);
         }
 
         [Fact]
@@ -63,7 +72,8 @@ namespace StartupEmpire.Domain.Tests
             var storage = new InMemorySaveStorage();
             var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
             var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
-            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow), catalog, employeeCatalog);
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow), catalog, employeeCatalog, competitorCatalog);
 
             var state = saveService.Load(startingCashIfNew: 500);
 
@@ -78,7 +88,8 @@ namespace StartupEmpire.Domain.Tests
             storage.WriteRaw("{ isso nao e json valido");
             var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
             var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
-            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow), catalog, employeeCatalog);
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow), catalog, employeeCatalog, competitorCatalog);
 
             var state = saveService.Load(startingCashIfNew: 500);
 
@@ -92,14 +103,15 @@ namespace StartupEmpire.Domain.Tests
             var storage = new InMemorySaveStorage();
             var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
             var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
-            var saveService = new SaveService(storage, clock, catalog, employeeCatalog);
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, clock, catalog, employeeCatalog, competitorCatalog);
             var state = new GameState(new PlayerState(), new EconomyState(0));
             var def = catalog.Find("first_website");
             state.Products.Add(new ProductState(def));
             saveService.Save(state);
 
             var newCatalog = new ProductDefinitionCatalog();
-            var saveServiceWithNewCatalog = new SaveService(storage, clock, newCatalog, employeeCatalog);
+            var saveServiceWithNewCatalog = new SaveService(storage, clock, newCatalog, employeeCatalog, competitorCatalog);
 
             var loaded = saveServiceWithNewCatalog.Load(startingCashIfNew: 0);
 
@@ -113,17 +125,39 @@ namespace StartupEmpire.Domain.Tests
             var storage = new InMemorySaveStorage();
             var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
             var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
-            var saveService = new SaveService(storage, clock, catalog, employeeCatalog);
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, clock, catalog, employeeCatalog, competitorCatalog);
             var state = new GameState(new PlayerState(), new EconomyState(0));
             state.Employees.Employees.Add(new Employee("backend_junior_0", employeeCatalog.Find("backend_junior")));
             saveService.Save(state);
 
             var newEmployeeCatalog = new EmployeeDefinitionCatalog();
-            var saveServiceWithNewCatalog = new SaveService(storage, clock, catalog, newEmployeeCatalog);
+            var saveServiceWithNewCatalog = new SaveService(storage, clock, catalog, newEmployeeCatalog, competitorCatalog);
 
             var loaded = saveServiceWithNewCatalog.Load(startingCashIfNew: 0);
 
             Assert.Empty(loaded.Employees.Employees);
+        }
+
+        [Fact]
+        public void Load_IgnoresOrphanCompetitor_WhenDefinitionNoLongerExists()
+        {
+            var clock = new FakeClock(DateTime.UtcNow);
+            var storage = new InMemorySaveStorage();
+            var catalog = ProductDefinitionCatalog.CreateChapter1Catalog();
+            var employeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
+            var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            var saveService = new SaveService(storage, clock, catalog, employeeCatalog, competitorCatalog);
+            var state = new GameState(new PlayerState(), new EconomyState(0));
+            state.Competitors.Add(new CompetitorState(competitorCatalog.Find("rival_startup")));
+            saveService.Save(state);
+
+            var newCompetitorCatalog = new CompetitorDefinitionCatalog();
+            var saveServiceWithNewCatalog = new SaveService(storage, clock, catalog, employeeCatalog, newCompetitorCatalog);
+
+            var loaded = saveServiceWithNewCatalog.Load(startingCashIfNew: 0);
+
+            Assert.Empty(loaded.Competitors);
         }
     }
 }
