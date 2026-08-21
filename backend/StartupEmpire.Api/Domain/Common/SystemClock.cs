@@ -1,0 +1,6 @@
+namespace StartupEmpire.Api.Domain.Common;
+
+public sealed class SystemClock : IClock
+{
+    public DateTime UtcNow => DateTime.UtcNow;
+}
