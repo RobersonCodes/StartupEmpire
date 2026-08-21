@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &1091197520
+--- !u!1 &1135590212
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,9 +127,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1091197523}
-  - component: {fileID: 1091197522}
-  - component: {fileID: 1091197521}
+  - component: {fileID: 1135590216}
+  - component: {fileID: 1135590215}
+  - component: {fileID: 1135590214}
+  - component: {fileID: 1135590213}
   m_Layer: 0
   m_Name: GameRoot
   m_TagString: Untagged
@@ -137,38 +138,50 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1091197521
+--- !u!114 &1135590213
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091197520}
+  m_GameObject: {fileID: 1135590212}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6906a912f18f1a4195c79f085804b62, type: 3}
+  m_Script: {fileID: 11500000, guid: 2635698b27f055e439b0f3f14e1a0c61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1091197522
+--- !u!114 &1135590214
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091197520}
+  m_GameObject: {fileID: 1135590212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c042cffda866d4f9b8036dc5c79bcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1135590215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135590212}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8756519ba04929841a10284bc161ac2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   backendBaseUrl: 
---- !u!4 &1091197523
+--- !u!4 &1135590216
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091197520}
+  m_GameObject: {fileID: 1135590212}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -181,4 +194,4 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1091197523}
+  - {fileID: 1135590216}

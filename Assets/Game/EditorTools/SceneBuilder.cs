@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using StartupEmpire.Audio;
 using StartupEmpire.Core;
 using StartupEmpire.UI;
 
@@ -21,7 +22,7 @@ namespace StartupEmpire.EditorTools
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            new GameObject("GameRoot", typeof(GameRoot), typeof(OfficeScreenBuilder));
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
 
             if (!AssetDatabase.IsValidFolder(ScenesFolder))
             {
