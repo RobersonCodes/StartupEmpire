@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using StartupEmpire.Economy;
+using StartupEmpire.Employees;
 using StartupEmpire.Missions;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
+using StartupEmpire.Upgrades;
 
 namespace StartupEmpire.Core
 {
@@ -16,6 +18,8 @@ namespace StartupEmpire.Core
         public CompanyStage Stage { get; internal set; } = CompanyStage.PessoaFisica;
         public MissionProgressBook Missions { get; } = new();
         public HashSet<string> UnlockedAchievements { get; } = new();
+        public UpgradeState Upgrades { get; } = new();
+        public EmployeeRoster Employees { get; } = new();
         public DateTime LastSavedUtc { get; set; }
 
         public GameState(PlayerState player, EconomyState economy)

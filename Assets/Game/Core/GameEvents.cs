@@ -92,4 +92,52 @@ namespace StartupEmpire.Core
             CashEarned = cashEarned;
         }
     }
+
+    public readonly struct UpgradePurchasedEvent
+    {
+        public readonly string UpgradeId;
+        public readonly int NewLevel;
+
+        public UpgradePurchasedEvent(string upgradeId, int newLevel)
+        {
+            UpgradeId = upgradeId;
+            NewLevel = newLevel;
+        }
+    }
+
+    public readonly struct EmployeeHiredEvent
+    {
+        public readonly string EmployeeInstanceId;
+        public readonly string DefinitionId;
+
+        public EmployeeHiredEvent(string employeeInstanceId, string definitionId)
+        {
+            EmployeeInstanceId = employeeInstanceId;
+            DefinitionId = definitionId;
+        }
+    }
+
+    public readonly struct EmployeeFiredEvent
+    {
+        public readonly string EmployeeInstanceId;
+        public EmployeeFiredEvent(string employeeInstanceId) => EmployeeInstanceId = employeeInstanceId;
+    }
+
+    public readonly struct GameEventTriggeredEvent
+    {
+        public readonly string EventId;
+        public GameEventTriggeredEvent(string eventId) => EventId = eventId;
+    }
+
+    public readonly struct GameEventResolvedEvent
+    {
+        public readonly string EventId;
+        public readonly string ChoiceId;
+
+        public GameEventResolvedEvent(string eventId, string choiceId)
+        {
+            EventId = eventId;
+            ChoiceId = choiceId;
+        }
+    }
 }

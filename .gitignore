@@ -22,6 +22,9 @@
 .vscode/
 .idea/
 *.csproj
+# Exceção: .csproj de Tests.NET é hand-authored (linka os arquivos de Assets/Game/**
+# para rodar via `dotnet test`), não um projeto gerado pelo Unity/VS — precisa ser versionado.
+!Tests.NET/**/*.csproj
 *.unityproj
 *.sln
 *.suo

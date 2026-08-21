@@ -1,0 +1,93 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <RootNamespace>StartupEmpire.Domain.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Domínio puro (sem UnityEngine) linkado diretamente dos scripts do jogo em Assets/Game.
+         Não são cópias: é o mesmo arquivo físico compilado aqui e pelo Unity Editor. -->
+    <Compile Include="..\Assets\Game\Core\IClock.cs" Link="Domain\Core\IClock.cs" />
+    <Compile Include="..\Assets\Game\Core\SystemClock.cs" Link="Domain\Core\SystemClock.cs" />
+    <Compile Include="..\Assets\Game\Core\EventBus.cs" Link="Domain\Core\EventBus.cs" />
+    <Compile Include="..\Assets\Game\Core\GameEvents.cs" Link="Domain\Core\GameEvents.cs" />
+    <Compile Include="..\Assets\Game\Core\PlayerState.cs" Link="Domain\Core\PlayerState.cs" />
+    <Compile Include="..\Assets\Game\Core\GameState.cs" Link="Domain\Core\GameState.cs" />
+
+    <Compile Include="..\Assets\Game\Economy\EconomyConfigValues.cs" Link="Domain\Economy\EconomyConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Economy\LedgerEntry.cs" Link="Domain\Economy\LedgerEntry.cs" />
+    <Compile Include="..\Assets\Game\Economy\EconomyState.cs" Link="Domain\Economy\EconomyState.cs" />
+    <Compile Include="..\Assets\Game\Economy\EconomyEngine.cs" Link="Domain\Economy\EconomyEngine.cs" />
+
+    <Compile Include="..\Assets\Game\Products\ProductStage.cs" Link="Domain\Products\ProductStage.cs" />
+    <Compile Include="..\Assets\Game\Products\ProductDefinition.cs" Link="Domain\Products\ProductDefinition.cs" />
+    <Compile Include="..\Assets\Game\Products\ProductState.cs" Link="Domain\Products\ProductState.cs" />
+    <Compile Include="..\Assets\Game\Products\ProductDefinitionCatalog.cs" Link="Domain\Products\ProductDefinitionCatalog.cs" />
+    <Compile Include="..\Assets\Game\Products\DevelopmentService.cs" Link="Domain\Products\DevelopmentService.cs" />
+    <Compile Include="..\Assets\Game\Products\CustomerAcquisitionConfigValues.cs" Link="Domain\Products\CustomerAcquisitionConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Products\CustomerAcquisitionService.cs" Link="Domain\Products\CustomerAcquisitionService.cs" />
+
+    <Compile Include="..\Assets\Game\Progression\CompanyStage.cs" Link="Domain\Progression\CompanyStage.cs" />
+    <Compile Include="..\Assets\Game\Progression\ProgressionService.cs" Link="Domain\Progression\ProgressionService.cs" />
+
+    <Compile Include="..\Assets\Game\Research\KnowledgeTracks.cs" Link="Domain\Research\KnowledgeTracks.cs" />
+    <Compile Include="..\Assets\Game\Research\LearningConfigValues.cs" Link="Domain\Research\LearningConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Research\LearningService.cs" Link="Domain\Research\LearningService.cs" />
+
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeCategory.cs" Link="Domain\Upgrades\UpgradeCategory.cs" />
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeEffectType.cs" Link="Domain\Upgrades\UpgradeEffectType.cs" />
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeDefinition.cs" Link="Domain\Upgrades\UpgradeDefinition.cs" />
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeState.cs" Link="Domain\Upgrades\UpgradeState.cs" />
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeCatalog.cs" Link="Domain\Upgrades\UpgradeCatalog.cs" />
+    <Compile Include="..\Assets\Game\Upgrades\UpgradeService.cs" Link="Domain\Upgrades\UpgradeService.cs" />
+
+    <Compile Include="..\Assets\Game\Employees\EmployeeRole.cs" Link="Domain\Employees\EmployeeRole.cs" />
+    <Compile Include="..\Assets\Game\Employees\EmployeeDefinition.cs" Link="Domain\Employees\EmployeeDefinition.cs" />
+    <Compile Include="..\Assets\Game\Employees\Employee.cs" Link="Domain\Employees\Employee.cs" />
+    <Compile Include="..\Assets\Game\Employees\EmployeeRoster.cs" Link="Domain\Employees\EmployeeRoster.cs" />
+    <Compile Include="..\Assets\Game\Employees\EmployeeDefinitionCatalog.cs" Link="Domain\Employees\EmployeeDefinitionCatalog.cs" />
+    <Compile Include="..\Assets\Game\Employees\HiringConfigValues.cs" Link="Domain\Employees\HiringConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Employees\HiringService.cs" Link="Domain\Employees\HiringService.cs" />
+
+    <Compile Include="..\Assets\Game\Events\GameEventDefinition.cs" Link="Domain\Events\GameEventDefinition.cs" />
+    <Compile Include="..\Assets\Game\Events\EventConfigValues.cs" Link="Domain\Events\EventConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Events\EventCatalog.cs" Link="Domain\Events\EventCatalog.cs" />
+    <Compile Include="..\Assets\Game\Events\EventService.cs" Link="Domain\Events\EventService.cs" />
+
+    <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
+    <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
+    <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />
+    <Compile Include="..\Assets\Game\Missions\Chapter1Missions.cs" Link="Domain\Missions\Chapter1Missions.cs" />
+
+    <Compile Include="..\Assets\Game\Achievements\AchievementDefinition.cs" Link="Domain\Achievements\AchievementDefinition.cs" />
+    <Compile Include="..\Assets\Game\Achievements\AchievementCatalog.cs" Link="Domain\Achievements\AchievementCatalog.cs" />
+    <Compile Include="..\Assets\Game\Achievements\AchievementService.cs" Link="Domain\Achievements\AchievementService.cs" />
+
+    <Compile Include="..\Assets\Game\Idle\OfflineSummary.cs" Link="Domain\Idle\OfflineSummary.cs" />
+    <Compile Include="..\Assets\Game\Idle\OfflineProgressCalculator.cs" Link="Domain\Idle\OfflineProgressCalculator.cs" />
+    <Compile Include="..\Assets\Game\Idle\IdleService.cs" Link="Domain\Idle\IdleService.cs" />
+
+    <Compile Include="..\Assets\Game\Save\SaveDataV1.cs" Link="Domain\Save\SaveDataV1.cs" />
+    <Compile Include="..\Assets\Game\Save\ISaveStorage.cs" Link="Domain\Save\ISaveStorage.cs" />
+    <Compile Include="..\Assets\Game\Save\InMemorySaveStorage.cs" Link="Domain\Save\InMemorySaveStorage.cs" />
+    <Compile Include="..\Assets\Game\Save\SaveMigrator.cs" Link="Domain\Save\SaveMigrator.cs" />
+    <Compile Include="..\Assets\Game\Save\SaveSerializer.cs" Link="Domain\Save\SaveSerializer.cs" />
+    <Compile Include="..\Assets\Game\Save\SaveService.cs" Link="Domain\Save\SaveService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Tests\**\*.cs" />
+  </ItemGroup>
+
+</Project>
