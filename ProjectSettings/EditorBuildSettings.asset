@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Game/UI/Scenes/Office.unity
+    guid: cb7682e5f19242646bace448470e089c
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
