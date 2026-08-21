@@ -12,13 +12,14 @@
 | Unity Editor | ❌ Não instalado | Ver bloqueio abaixo |
 | Android SDK | ❌ Não instalado | Normalmente instalado junto com o módulo Android do Unity Hub |
 
-### 🔴 BLOQUEIO REGISTRADO: Unity Editor não pôde ser instalado de forma headless
+### ✅ BLOQUEIO RESOLVIDO: Unity Editor + módulo Android instalados via CLI headless
 
-- **Problema:** Não foi possível instalar o Unity Editor + módulo Android via linha de comando nesta sessão.
-- **Motivo:** O Unity Hub instalado via winget é um pacote MSIX (executa em `C:\Program Files\WindowsApps\...`, sandbox sem alias de execução no PATH e sem shim de CLI). O instalador tradicional (`UnityHubSetup.exe`) via CDN direto retornou HTTP 404 (URL descontinuada) e a página oficial de download bloqueou fetch automatizado (HTTP 403). Mesmo que o binário do Hub fosse acessível via CLI (`-- --headless install ...`), a ativação de licença do Unity Personal normalmente exige login interativo (OAuth via navegador) ou uma chave serial — nenhum dos dois pode ser concluído por um agente headless.
-- **Impacto:** Não é possível abrir o projeto no Editor, compilar via Unity, rodar Unity Test Runner ou gerar APK/AAB dentro desta sessão.
-- **Solução necessária:** O usuário deve abrir o Unity Hub (já instalado) manualmente, fazer login/ativar a licença Personal, instalar uma versão LTS do Editor (recomendado: 2022 LTS ou mais recente disponível) com o módulo **Android Build Support** (inclui SDK/NDK/OpenJDK), e então abrir a pasta `StartupEmpire/` como projeto existente.
-- **Mitigação adotada:** Todo o código de gameplay já foi escrito pronto para importar no Unity (estrutura `Assets/Game/**`, ScriptableObjects, MonoBehaviours). A lógica determinística (economia, idle, save, missões) foi implementada como C# puro (POCO, sem dependência de `UnityEngine`) e é validada por um projeto de testes **.NET real** (`Tests.NET/`) que compila e roda com `dotnet test` nesta máquina — evidência de execução real, não simulada. Quando o Editor for instalado, os mesmos scripts rodam dentro do Unity Test Runner sem alterações.
+- **Problema original:** O Unity Hub instalado via winget é um pacote MSIX (sandbox sem CLI).
+- **Como foi resolvido:** Baixei o instalador tradicional (`UnityHubSetup-x64.exe`, direto de `public-cdn.cloud.unity3d.com/hub/prod/` — a URL sem sufixo `-x64` estava descontinuada, mas essa variante existe) e reinstalei o Hub com ele. Isso deu acesso a `"Unity Hub.exe" -- --headless install/install-modules`, que **não exige login** para baixar/instalar o Editor e os módulos — só a *ativação de licença* (usar o Editor, não instalá-lo) exige.
+- **Editor instalado:** 6000.0.82f1 (linha LTS) em `C:\Program Files\Unity\Hub\Editor\6000.0.82f1`.
+- **Módulo Android:** completo (SDK + NDK + OpenJDK + build-tools, 5.4GB), confirmado em disco. Precisou de um contorno: o primeiro `install --module android` saiu antes de registrar os módulos no manifesto do Hub, fazendo `install-modules` falhar com "No modules found for this editor". Resolvido rodando manualmente o instalador NSIS do módulo (`UnitySetup-Android-Support-for-Editor-6000.0.82f1.exe`, que o Hub já tinha baixado em `%AppData%\UnityHub\downloads\`) e reassociando o Editor com `editors --add`, o que destravou o `install-modules` para NDK/SDK completarem.
+- **Único passo que ainda depende do usuário:** login/ativação da licença Unity Personal na primeira vez que o Editor abrir um projeto (OAuth via navegador ou conta — não pode ser feito por um agente headless sem as credenciais).
+- **Mitigação que já existia antes disso:** todo o código de gameplay já estava pronto para importar no Unity (estrutura `Assets/Game/**`), com a lógica determinística em C# puro validada por `Tests.NET/` via `dotnet test` — evidência real mesmo antes do Editor existir. Agora que o Editor está instalado, o próximo passo é abrir o projeto (após a ativação de licença) e rodar o Unity Test Runner/compilação real pela primeira vez.
 
 ## 2. Estado Inicial
 
