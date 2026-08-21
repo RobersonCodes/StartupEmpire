@@ -13,7 +13,7 @@ Continue do estado atual; não reinicialize o projeto e não reverta os commits 
    - Bugs ocultos (`BugCount`) separados dos descobertos (`KnownBugCount`).
    - Correção atua somente nos descobertos.
    - Save schema V2 e migração V1→V2.
-3. Ícone original Android integrado e APK reconstruído. Consulte `git log -4 --oneline` para os hashes mais recentes.
+3. Ícone original Android integrado e APK reconstruído. Consulte `git log -5 --oneline` para os hashes mais recentes.
 4. Incremento posterior: tempo como recurso real.
    - Dia atual e ciclos restantes persistidos no save schema V3.
    - Estudar/desenvolver/testar/corrigir consomem ciclo somente quando válidos.
@@ -26,8 +26,8 @@ Continue do estado atual; não reinicialize o projeto e não reverta os commits 
 - Backend: 22/22 (`dotnet test backend/StartupEmpire.Api.Tests/StartupEmpire.Api.Tests.csproj`); dentro de sandbox o Windows Event Log causa falso negativo, portanto rode com permissão normal.
 - Unity EditMode: 29/29.
 - Unity PlayMode: 8/8.
-- APK: `Builds/Android/StartupEmpire-debug.apk` (ignorado pelo Git), 45.648.468 bytes.
-- SHA-256: `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`.
+- APK: `Builds/Android/StartupEmpire-debug.apk` (ignorado pelo Git), 45.613.821 bytes.
+- SHA-256: `435BF85574BEAEB0C87CAA74222B03CB620374CA65FCE07BFED04ECB03A000AD`.
 - BuildReport final: `Succeeded`, 0 erros, 0 avisos.
 - `aapt2 dump badging` confirmou o ícone em ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi.
 - O APK ainda NÃO foi executado em aparelho; o emulador visto na auditoria estava offline.

@@ -127,7 +127,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Added (continuação — identidade Android)
 - Ícone original do STARTUP EMPIRE em `Assets/Game/Art/StartupEmpireAppIcon.png`: notebook de programação evoluindo para uma empresa tecnológica global, sem copiar marcas ou jogos existentes.
 - `AndroidBuilder` configura automaticamente o mesmo asset nos slots Android Legacy e Round antes do build, evitando que builds futuros voltem ao ícone padrão.
-- APK reconstruído do HEAD atual: 45.648.468 bytes, SHA-256 `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`, 0 erros/0 avisos. `aapt2` confirmou `app_icon.png` nas seis densidades Android.
+- APK reconstruído com o ícone: 45.648.468 bytes, 0 erros/0 avisos. `aapt2` confirmou `app_icon.png` nas seis densidades Android.
 
 ### Added (continuação — tempo como recurso)
 - `PlayerState` agora mantém `CurrentDay`, `WorkCyclesPerDay` e `RemainingWorkCycles`, com consumo validado e restauração na virada do dia.
@@ -135,6 +135,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - A Office exibe dia/tempo e feedback da última ação; `Avançar Ciclo` virou `Encerrar Dia`, que executa a simulação econômica uma vez e abre o dia seguinte. Research compartilha o mesmo limite.
 - Save schema V3 persiste a agenda e migra saves V1/V2 para dia 1 com quatro ciclos disponíveis.
 - Evidência atual: 92/92 `.NET`, 29/29 EditMode e 8/8 PlayMode.
+- APK reconstruído novamente após o calendário: 45.613.821 bytes, SHA-256 `435BF85574BEAEB0C87CAA74222B03CB620374CA65FCE07BFED04ECB03A000AD`, 0 erros/0 avisos.
 
 ### Fixed (continuação)
 - `WorkCyclesPerDay` era apenas informativo e o jogador podia repetir ações infinitamente. A quinta ação do dia agora falha sem alterar conhecimento/produto e informa que é preciso encerrar o dia.

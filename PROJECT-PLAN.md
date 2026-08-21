@@ -59,7 +59,7 @@
 [ ] 27. Android optimization
 [x] 28. Tests — 92 `.NET` + 29 EditMode + 8 PlayMode (129 reais no cliente) + 22 no backend
 [ ] 29. Balancing
-[x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.648.468 bytes, SHA-256 `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`, build IL2CPP+Gradle real (0 erros, 0 avisos) com ícone customizado. AAB ainda não gerado.
+[x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.613.821 bytes, SHA-256 `435BF85574BEAEB0C87CAA74222B03CB620374CA65FCE07BFED04ECB03A000AD`, build IL2CPP+Gradle real (0 erros, 0 avisos) com ícone e calendário diário. AAB ainda não gerado.
 [ ] 31. Documentation
 ```
 
