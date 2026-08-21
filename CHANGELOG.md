@@ -43,7 +43,24 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Fixed (continuação)
 - `MissionDefinition.RewardGems` existia desde o Capítulo 1 (a missão "MRR" já tinha `rewardGems: 10`) mas nunca era concedido — `MissionService.EvaluateAll` só processava `RewardCash`. Corrigido: `MissionService` agora recebe um `GemWalletService` opcional e concede gems junto com o cash.
 
+### Added (continuação — Ranking, Referrals, backend)
+- Novo projeto `backend/StartupEmpire.Api` (ASP.NET Core Minimal API, .NET 10) e `backend/StartupEmpire.Api.Tests` (xUnit), com domínio próprio e desacoplado de EF/ASP.NET, no mesmo espírito do cliente Unity.
+- `Domain/Ranking`: `RankingService` (seção 23) — valida dados no servidor de verdade (rejeita negativos/NaN/Infinity), aplica rate-limit por jogador (`MinSubmissionInterval`) e um heurístico anti-cheat de crescimento implausível (`MaxPlausibleGrowthMultiple`). Endpoints `/api/ranking/submit`, `/top`, `/me/{playerId}` cobrindo as 5 métricas da missão (NetWorth, Valuation, MRR, Progress, Achievements).
+- `Domain/Referrals`: `ReferralService` (seção 24) — gera código único por jogador, vincula inviter/invitee, aplica prevenção de abuso (rejeita auto-indicação e um segundo resgate do mesmo convidado, reforçado também por índice único no banco) e um teto de resgates por indicador. Endpoints `/api/referrals/code`, `/redeem`.
+- Persistência via EF Core + Npgsql, com migration inicial gerada (`Data/Migrations/InitialCreate`).
+- 22 testes reais no backend: 15 de unidade com repositórios fake em memória (sem banco nenhum) e 7 de integração HTTP ponta a ponta via `WebApplicationFactory<Program>` com SQLite em memória (motor relacional de verdade).
+- Cliente Unity: `IRankingClient`/`IReferralClient` com `NullRankingClient`/`NullReferralClient` como padrão seguro (o ranking nunca bloqueia a campanha, seção 23), mais `HttpRankingClient`/`HttpReferralClient` reais via `UnityWebRequest`. `ReferralClientService` só credita Gems localmente depois que o backend confirma o resgate. `GameRoot` expõe `SubmitRankingAsync`/`RedeemReferralCodeAsync` e liga tudo com um `backendBaseUrl` opcional (vazio = 100% offline).
+- `PlayerState.PlayerId`: identificador estável gerado no cliente (tipo device id), agora persistido no save, usado para falar com o backend. Sem autenticação real ainda (item futuro, seção 3).
+- 5 novos testes reais no cliente (`RankingClientServiceTests`, `ReferralClientServiceTests`) — suíte total do cliente: 72/72 passando.
+
+### Fixed (continuação)
+- Testes de integração do backend falhavam com "Only a single database provider can be registered" ao trocar Npgsql por SQLite via `WebApplicationFactory`: `AddDbContext` registra tanto `DbContextOptions<AppDbContext>` quanto `IDbContextOptionsConfiguration<AppDbContext>`, e só o primeiro estava sendo removido. Corrigido removendo os dois antes de registrar o provedor de teste.
+- O mesmo bug de `.gitignore` que excluía `Tests.NET/*.csproj` (ver seção anterior) estava prestes a se repetir com `backend/**/*.csproj` — generalizada a exceção antes do primeiro commit do backend.
+- Pacotes com vulnerabilidades conhecidas nos templates padrão: `Microsoft.OpenApi` 2.0.0 (GHSA-v5pm-xwqc-g5wc, pinado em 2.12.2) e `SQLitePCLRaw.lib.e_sqlite3` 2.1.11 (GHSA-2m69-gcr7-jv3q, pinado em 3.53.3). Backend builda com 0 avisos e 0 vulnerabilidades conhecidas.
+
 ### Known limitations
 - Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
-- Gems ainda só são obtidos via recompensa de missão; não há vínculo com pagamento real (Google Play Billing) nem com anúncios recompensados (`IAdService` ainda não implementado).
+- Gems ainda só são obtidos via recompensa de missão ou referral; não há vínculo com pagamento real (Google Play Billing) nem com anúncios recompensados (`IAdService` ainda não implementado).
+- O backend não foi testado contra o PostgreSQL real desta máquina (credenciais não disponíveis para o agente — ver `backend/README.md`); só contra SQLite em memória. Também não tem autenticação real — `PlayerId` é auto-declarado pelo cliente.
+- `HttpRankingClient`/`HttpReferralClient`/`UnityWebRequestAsync` dependem de `UnityEngine`/`UnityWebRequest` e não foram compilados nem testados (aguardando o Unity Editor); a lógica pura (`RankingClientService`, `ReferralClientService`) está coberta por testes reais.

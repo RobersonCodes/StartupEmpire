@@ -18,7 +18,7 @@
 - **Motivo:** O Unity Hub instalado via winget é um pacote MSIX (executa em `C:\Program Files\WindowsApps\...`, sandbox sem alias de execução no PATH e sem shim de CLI). O instalador tradicional (`UnityHubSetup.exe`) via CDN direto retornou HTTP 404 (URL descontinuada) e a página oficial de download bloqueou fetch automatizado (HTTP 403). Mesmo que o binário do Hub fosse acessível via CLI (`-- --headless install ...`), a ativação de licença do Unity Personal normalmente exige login interativo (OAuth via navegador) ou uma chave serial — nenhum dos dois pode ser concluído por um agente headless.
 - **Impacto:** Não é possível abrir o projeto no Editor, compilar via Unity, rodar Unity Test Runner ou gerar APK/AAB dentro desta sessão.
 - **Solução necessária:** O usuário deve abrir o Unity Hub (já instalado) manualmente, fazer login/ativar a licença Personal, instalar uma versão LTS do Editor (recomendado: 2022 LTS ou mais recente disponível) com o módulo **Android Build Support** (inclui SDK/NDK/OpenJDK), e então abrir a pasta `StartupEmpire/` como projeto existente.
-- **Mitigação adotada:** Todo o código de gameplay foi escrito already pronto para importar no Unity (estrutura `Assets/Game/**`, ScriptableObjects, MonoBehaviours). A lógica determinística (economia, idle, save, missões) foi implementada como C# puro (POCO, sem dependência de `UnityEngine`) e é validada por um projeto de testes **.NET real** (`Tests.NET/`) que compila e roda com `dotnet test` nesta máquina — evidência de execução real, não simulada. Quando o Editor for instalado, os mesmos scripts rodam dentro do Unity Test Runner sem alterações.
+- **Mitigação adotada:** Todo o código de gameplay já foi escrito pronto para importar no Unity (estrutura `Assets/Game/**`, ScriptableObjects, MonoBehaviours). A lógica determinística (economia, idle, save, missões) foi implementada como C# puro (POCO, sem dependência de `UnityEngine`) e é validada por um projeto de testes **.NET real** (`Tests.NET/`) que compila e roda com `dotnet test` nesta máquina — evidência de execução real, não simulada. Quando o Editor for instalado, os mesmos scripts rodam dentro do Unity Test Runner sem alterações.
 
 ## 2. Estado Inicial
 
@@ -51,15 +51,24 @@
 [x] 20. Achievements (Hello World, First Customer, MRR, Founder, Unicorn)
 [x] 21. Premium Currency (Gems: saldo, ledger, grant/spend, pronto para Play Billing depois)
 [x] 22. Store (boost de dev, boost de aquisição, aporte instantâneo, cosmético — sem mecânica predatória)
-[ ] 23. Statistics
+[ ] 23. Statistics (telas de estatística in-game — fica para a etapa de UI)
 [ ] 24. UI final
 [ ] 25. Audio
 [ ] 26. Art polish
 [ ] 27. Android optimization
-[x] 28. Tests — 67 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
+[x] 28. Tests — 72 testes reais do cliente + 22 do backend via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
 [ ] 29. Balancing
 [ ] 30. APK/AAB (depende do Editor instalado — ver bloqueio)
 [ ] 31. Documentation
+```
+
+**Nota:** a lista acima segue a numeração 01–31 da seção 36 da missão, que não enumera explicitamente Ranking/Backend (seção 23 do corpo da missão) nem Referrals (seção 24 do corpo) — são itens à parte, implementados nesta sessão:
+
+```
+[x] Ranking/Backend (seção 23) — ASP.NET Core + PostgreSQL (Npgsql/EF Core) em backend/StartupEmpire.Api,
+    validação server-side real, endpoints /api/ranking/submit|top|me. Ver backend/README.md.
+[x] Referrals (seção 24) — código de indicação, vínculo inviter/invitee, recompensa, limite e
+    prevenção de abuso, também em backend/StartupEmpire.Api. Cliente Unity com fallback offline-safe.
 ```
 
 Este documento é atualizado conforme o `PROGRESS.md` avança. Detalhes de design em `GAME-DESIGN-DOCUMENT.md`, decisões técnicas em `ARCHITECTURE.md`.
