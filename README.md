@@ -5,7 +5,7 @@
 [![Unity](https://img.shields.io/badge/Unity-6000.0.82f1_LTS-000000?logo=unity)](ProjectSettings/ProjectVersion.txt)
 [![Android](https://img.shields.io/badge/Android-minSdk_23_%7C_targetSdk_36-3DDC84?logo=android)](Assets/Game/EditorTools/AndroidBuilder.cs)
 [![C%23](https://img.shields.io/badge/C%23-.NET_8%2F10-512BD4?logo=dotnet)](Tests.NET/StartupEmpire.Domain.Tests.csproj)
-[![Tests](https://img.shields.io/badge/tests-155_passing-success)](#qualidade-e-evidências)
+[![Tests](https://img.shields.io/badge/tests-160_passing-success)](#qualidade-e-evidências)
 [![Save](https://img.shields.io/badge/save-schema_V4-blue)](Assets/Game/Save/SaveMigrator.cs)
 
 Startup Empire combina **Tycoon + Idle + Strategy + Business Simulator + Interactive Career**. A campanha principal funciona sem internet; backend é opcional e reservado a ranking, referrals e futuras funções de perfil/cloud save.
@@ -16,11 +16,11 @@ O repositório é um projeto de portfólio executável com fundação preparada 
 
 | Área | Estado | Evidência |
 |---|---|---|
-| Gameplay de domínio | Funcional | 92 testes `.NET` + 32 EditMode |
+| Gameplay de domínio | Funcional | 94 testes `.NET` + 35 EditMode |
 | UI mobile | Jogável, em polish | Splash/Menu/onboarding + 13 telas internas |
-| Save | Funcional, schema V4 | migrações V1→V4 e testes de round-trip |
+| Save | Funcional, schema V4 | migrações V1→V4, escrita temporária e backup `.bak` |
 | Backend opcional | Funcional | 22 testes, incluindo HTTP + SQLite em memória |
-| APK debug | Gerado | 45.617.747 bytes, build Unity sem erros/avisos |
+| APK debug | Gerado | 45.621.360 bytes, build Unity sem erros/avisos |
 | Runtime em aparelho | Pendente | emulador local está offline |
 | AAB/release signing | Pendente | exige configuração segura de distribuição |
 
@@ -193,18 +193,18 @@ Em batch mode, `GameRoot` seleciona `InMemorySaveStorage`. Isso impede que teste
 
 | Suíte | Passou | Falhou |
 |---|---:|---:|
-| Domínio `.NET` | 92 | 0 |
-| Unity EditMode | 32 | 0 |
+| Domínio `.NET` | 94 | 0 |
+| Unity EditMode | 35 | 0 |
 | Unity PlayMode | 9 | 0 |
 | Backend | 22 | 0 |
-| **Total** | **155** | **0** |
+| **Total** | **160** | **0** |
 
 APK atual:
 
 ```text
 Arquivo:  Builds/Android/StartupEmpire-debug.apk
-Tamanho:  45.617.747 bytes
-SHA-256:  8115D0D358499C72C495A4944E806ED5FA200BBEC3C35C71F1A331C0A1C90AB3
+Tamanho:  45.621.360 bytes
+SHA-256:  BB9B2A69733CB99D300195AC781A7DF1A7AFF9F3F21AE607D0928D651E58153D
 Package:  com.startupempire.game
 minSdk:   23
 target:   36
@@ -227,12 +227,14 @@ O método configura package id, ícone, portrait e safe area antes de chamar o `
 ## Save e compatibilidade
 
 - Storage local por arquivo, atrás de `ISaveStorage`.
-- Escrita atômica usando arquivo temporário.
+- Escrita preparada em arquivo temporário antes de substituir o principal.
+- Rotação do snapshot anterior para `save_v1.json.bak`.
+- Recuperação automática do backup quando o principal está ausente ou corrompido, com restauração best-effort do arquivo principal.
 - Autosave periódico e em pause/quit.
 - Schema atual V4.
 - Migrações encadeadas preservam bugs/testes, calendário e tutorial.
 - Campos e definições desconhecidas são tratados defensivamente.
-- Save corrompido cai para novo jogo; backup recuperável `.bak` é prioridade futura.
+- Novo Jogo remove principal, backup e temporários para não ressuscitar uma campanha apagada.
 - Abstração permite cloud save posterior sem acoplar o domínio.
 
 ## Backend opcional
@@ -271,11 +273,10 @@ A campanha não depende da API. Configurações sensíveis não são commitadas.
 ## Roadmap imediato
 
 1. Smoke test em dispositivo/emulador online com logcat.
-2. Backup e recuperação `.bak` do save.
-3. Development screen + scroll e feedback de bloqueios.
-4. Balanceamento econômico orientado por testes/simulações.
-5. Art/audio polish.
-6. AAB, signing externo e CI.
+2. Development screen + scroll e feedback de bloqueios.
+3. Balanceamento econômico orientado por testes/simulações.
+4. Art/audio polish.
+5. AAB, signing externo e CI.
 
 O plano completo está em [PROJECT-PLAN.md](PROJECT-PLAN.md); decisões de design em [GAME-DESIGN-DOCUMENT.md](GAME-DESIGN-DOCUMENT.md); histórico em [CHANGELOG.md](CHANGELOG.md).
 

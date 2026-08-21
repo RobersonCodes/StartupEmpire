@@ -25,7 +25,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Estrutura de pastas `Assets/Game/**`
 - [COMPLETED] GameState / IClock / SystemClock / EventBus / GameRoot (composition root)
 - [COMPLETED] Economy Engine + EconomyConfigValues (ledger, cash flow, MRR, valuation)
-- [COMPLETED] Save System versionado (schema V4, migrações V1→V2→V3→V4, recuperação de save corrompido, autosave e tutorial persistido)
+- [COMPLETED] Save System versionado (schema V4, migrações V1→V2→V3→V4, escrita temporária, rotação `.bak`, recuperação/restauração automática de corrupção, autosave e tutorial persistido)
 - [COMPLETED] Calendário de trabalho — dia atual + 4 ciclos limitados por dia; estudar/desenvolver/testar/corrigir consomem tempo atomicamente, falhas não consomem nem alteram estado, e Encerrar Dia executa um ciclo econômico e restaura o tempo.
 - [COMPLETED] Idle / Offline progress (teto de horas, cálculo em lote, bugs por instabilidade)
 - [COMPLETED] Capítulo 1 (fluxo completo: aprender → dev → testar → bugs → corrigir → lançar → 1º cliente → MRR → transição de estágio)
@@ -50,13 +50,13 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Tutorial contextual do Capítulo 1 — guia persistido e sem paredes de texto para estudar → desenvolver → testar → corrigir → lançar → conquistar cliente; a ação recomendada recebe destaque visual e o tutorial antigo migra com segurança no save V4.
 - [IN PROGRESS] Art polish — ícone original do app criado e integrado (`Assets/Game/Art/StartupEmpireAppIcon.png`); UI interna ainda usa retângulos/texto placeholder e precisa de direção visual completa.
 - [IN PROGRESS] Android optimization — portrait travado, `renderOutsideSafeArea=false`, `SafeAreaFitter` responsivo a notch/barra de gestos e navegação com alvos largos; ainda faltam smoke test em aparelho, matriz visual de resoluções e medição de desempenho.
-- [COMPLETED] Android build (APK) — **APK atual real gerado e confirmado**: `Builds/Android/StartupEmpire-debug.apk`, 45.617.747 bytes, SHA-256 `8115D0D358499C72C495A4944E806ED5FA200BBEC3C35C71F1A331C0A1C90AB3`, `result=Succeeded totalErrors=0 totalWarnings=0`. `aapt2` confirmou package `com.startupempire.game`, minSdk 23, targetSdk 36 e `screenOrientation=1` (portrait). AAB ainda não foi gerado e o APK ainda não foi executado porque `emulator-5554` permanece offline.
+- [COMPLETED] Android build (APK) — **APK atual real gerado e confirmado**: `Builds/Android/StartupEmpire-debug.apk`, 45.621.360 bytes, SHA-256 `BB9B2A69733CB99D300195AC781A7DF1A7AFF9F3F21AE607D0928D651E58153D`, `result=Succeeded totalErrors=0 totalWarnings=0`. `aapt2` confirmou package `com.startupempire.game`, minSdk 23, targetSdk 36 e `screenOrientation=1` (portrait). AAB ainda não foi gerado e o APK ainda não foi executado porque `emulator-5554` permanece offline.
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` (cliente) — **92/92** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle, calendário de trabalho e migrações de save.
+- [COMPLETED] `Tests.NET` (cliente) — **94/94** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle, calendário de trabalho, migrações e recuperação de save.
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
-- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **32/32 EditMode + 9/9 PlayMode reais passando** (133 testes reais no cliente com os 92 do `Tests.NET`). A cobertura inclui save V4, onboarding, safe area, alvos de toque, navegação, lifecycle e modal de eventos. Testes batch usam storage em memória e não leem/escrevem o save real do jogador.
+- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **35/35 EditMode + 9/9 PlayMode reais passando** (138 testes reais no cliente com os 94 do `Tests.NET`). A cobertura inclui save V4, rotação/restore real de `.bak`, onboarding, safe area, alvos de toque, navegação, lifecycle e modal de eventos. Testes batch de campanha usam storage em memória e não leem/escrevem o save real do jogador.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 

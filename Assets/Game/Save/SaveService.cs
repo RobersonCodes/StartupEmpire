@@ -14,7 +14,7 @@ namespace StartupEmpire.Save
 {
     /// Converte GameState <-> SaveDataV1 e orquestra leitura/escrita via ISaveStorage.
     /// Nunca perde o progresso inteiro por um save corrompido ou campo ausente:
-    /// falhas de parsing caem em um novo jogo em vez de derrubar a aplicação, e
+    /// falhas de parsing tentam o snapshot anterior antes de criar um novo jogo, e
     /// produtos/funcionários cuja definição não existe mais são ignorados com segurança.
     public sealed class SaveService
     {
@@ -34,7 +34,21 @@ namespace StartupEmpire.Save
             _competitorCatalog = competitorCatalog ?? throw new ArgumentNullException(nameof(competitorCatalog));
         }
 
-        public bool HasSave => _storage.Exists();
+        public bool HasSave
+        {
+            get
+            {
+                try
+                {
+                    return _storage.Exists() ||
+                        (_storage is IRecoverableSaveStorage recoverable && recoverable.BackupExists());
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
 
         public GameState DeleteSaveAndCreateNew(double startingCash)
         {
@@ -149,22 +163,11 @@ namespace StartupEmpire.Save
 
         public GameState Load(double startingCashIfNew)
         {
-            if (!_storage.Exists())
-            {
-                return CreateNewGame(startingCashIfNew);
-            }
-
             SaveDataV1 data;
-            try
-            {
-                data = SaveSerializer.Deserialize(_storage.ReadRaw());
-            }
-            catch
+            if (!TryReadPrimary(out data) && !TryRecoverBackup(out data))
             {
                 return CreateNewGame(startingCashIfNew);
             }
-
-            if (data == null) return CreateNewGame(startingCashIfNew);
             data = SaveMigrator.MigrateToCurrent(data);
 
             var player = new PlayerState { PlayerId = data.PlayerId, Name = data.PlayerName };
@@ -276,6 +279,45 @@ namespace StartupEmpire.Save
             foreach (var cosmeticId in data.PurchasedCosmeticIds) state.Store.PurchasedCosmeticIds.Add(cosmeticId);
 
             return state;
+        }
+
+        private bool TryReadPrimary(out SaveDataV1 data)
+        {
+            data = null;
+            try
+            {
+                if (!_storage.Exists()) return false;
+                data = SaveSerializer.Deserialize(_storage.ReadRaw());
+                return data != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryRecoverBackup(out SaveDataV1 data)
+        {
+            data = null;
+            try
+            {
+                if (_storage is not IRecoverableSaveStorage recoverable || !recoverable.BackupExists())
+                    return false;
+                data = SaveSerializer.Deserialize(recoverable.ReadBackupRaw());
+                if (data == null) return false;
+
+                // A recuperação do arquivo principal é best-effort. Mesmo se o disco
+                // ficar somente leitura neste momento, a campanha ainda pode abrir a
+                // partir do snapshot válido que já foi desserializado em memória.
+                try { recoverable.RestoreBackup(); }
+                catch { }
+                return true;
+            }
+            catch
+            {
+                data = null;
+                return false;
+            }
         }
 
         private GameState CreateNewGame(double startingCash)

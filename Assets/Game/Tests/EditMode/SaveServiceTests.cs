@@ -93,6 +93,70 @@ namespace StartupEmpire.Tests.EditMode
         }
 
         [Test]
+        public void Load_RecoversPreviousSnapshot_WhenPrimarySaveIsCorrupted()
+        {
+            var storage = new InMemorySaveStorage();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+
+            saveService.Save(new GameState(new PlayerState { Name = "Primeiro" }, new EconomyState(100)));
+            saveService.Save(new GameState(new PlayerState { Name = "Recuperável" }, new EconomyState(250)));
+            storage.WriteRaw("{ save principal corrompido");
+
+            var loaded = saveService.Load(startingCashIfNew: 500);
+
+            Assert.AreEqual("Recuperável", loaded.Player.Name);
+            Assert.AreEqual(250, loaded.Economy.Cash);
+            Assert.DoesNotThrow(() => SaveSerializer.Deserialize(storage.ReadRaw()),
+                "O snapshot de backup também deve restaurar o arquivo principal");
+        }
+
+        [Test]
+        public void DeleteSaveAndCreateNew_RemovesPrimaryAndBackup()
+        {
+            var storage = new InMemorySaveStorage();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+            var state = new GameState(new PlayerState(), new EconomyState(100));
+            saveService.Save(state);
+            saveService.Save(state);
+            Assert.IsTrue(storage.BackupExists());
+
+            var fresh = saveService.DeleteSaveAndCreateNew(500);
+
+            Assert.IsFalse(storage.Exists());
+            Assert.IsFalse(storage.BackupExists());
+            Assert.IsFalse(saveService.HasSave);
+            Assert.AreEqual(500, fresh.Economy.Cash);
+        }
+
+        [Test]
+        public void FileSaveStorage_RotatesAndRestoresPreviousSnapshot()
+        {
+            var storage = new FileSaveStorage($"save_recovery_test_{Guid.NewGuid():N}.json");
+            try
+            {
+                storage.WriteRaw("primeiro");
+                storage.WriteRaw("segundo");
+
+                Assert.AreEqual("segundo", storage.ReadRaw());
+                Assert.IsTrue(storage.BackupExists());
+                Assert.AreEqual("primeiro", storage.ReadBackupRaw());
+
+                storage.RestoreBackup();
+                Assert.AreEqual("primeiro", storage.ReadRaw());
+            }
+            finally
+            {
+                storage.Delete();
+            }
+        }
+
+        [Test]
         public void Load_MigratesV1ProductTestingState_WithoutLosingKnownBugs()
         {
             var storage = new InMemorySaveStorage();

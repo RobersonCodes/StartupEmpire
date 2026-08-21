@@ -78,6 +78,7 @@ StartupEmpire/
 - `SaveMigrator` aplica migrações em cadeia (`V1→V2→V3→V4`) para nunca perder progresso quando um campo novo é adicionado; V4 persiste o tutorial contextual.
 - `StartupFlowBuilder` mantém Splash/Menu acima do shell e só libera a campanha por Continue ou New Game. Novo jogo apaga o save apenas após confirmação quando já existe progresso.
 - Em `Application.isBatchMode`, o composition root usa `InMemorySaveStorage`; automação de PlayMode nunca toca no arquivo real do jogador.
+- `IRecoverableSaveStorage` é uma capacidade opcional: `FileSaveStorage` rotaciona o arquivo anterior para `.bak`, e `SaveService` tenta esse snapshot e restaura o principal quando a leitura atual falha. Storages cloud podem implementar histórico próprio sem alterar o contrato básico.
 - Autosave a cada N ciclos de jogo e em pontos de transição de tela; save manual disponível.
 - Falha de leitura (JSON corrompido, campo ausente) cai em valores padrão por campo, nunca aborta o load inteiro.
 

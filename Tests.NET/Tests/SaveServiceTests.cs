@@ -111,6 +111,47 @@ namespace StartupEmpire.Domain.Tests
         }
 
         [Fact]
+        public void Load_RecoversPreviousSnapshot_WhenPrimarySaveIsCorrupted()
+        {
+            var storage = new InMemorySaveStorage();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+
+            saveService.Save(new GameState(new PlayerState { Name = "Primeiro" }, new EconomyState(100)));
+            saveService.Save(new GameState(new PlayerState { Name = "Recuperável" }, new EconomyState(250)));
+            storage.WriteRaw("{ save principal corrompido");
+
+            var loaded = saveService.Load(startingCashIfNew: 500);
+
+            Assert.Equal("Recuperável", loaded.Player.Name);
+            Assert.Equal(250, loaded.Economy.Cash);
+            Assert.NotNull(SaveSerializer.Deserialize(storage.ReadRaw()));
+        }
+
+        [Fact]
+        public void DeleteSaveAndCreateNew_RemovesPrimaryAndBackup()
+        {
+            var storage = new InMemorySaveStorage();
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+            var state = new GameState(new PlayerState(), new EconomyState(100));
+            saveService.Save(state);
+            saveService.Save(state);
+            Assert.True(storage.BackupExists());
+
+            var fresh = saveService.DeleteSaveAndCreateNew(500);
+
+            Assert.False(storage.Exists());
+            Assert.False(storage.BackupExists());
+            Assert.False(saveService.HasSave);
+            Assert.Equal(500, fresh.Economy.Cash);
+        }
+
+        [Fact]
         public void Load_MigratesV1ProductTestingState_WithoutLosingKnownBugs()
         {
             var storage = new InMemorySaveStorage();

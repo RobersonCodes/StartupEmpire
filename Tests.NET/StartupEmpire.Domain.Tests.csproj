@@ -132,6 +132,7 @@
 
     <Compile Include="..\Assets\Game\Save\SaveDataV1.cs" Link="Domain\Save\SaveDataV1.cs" />
     <Compile Include="..\Assets\Game\Save\ISaveStorage.cs" Link="Domain\Save\ISaveStorage.cs" />
+    <Compile Include="..\Assets\Game\Save\IRecoverableSaveStorage.cs" Link="Domain\Save\IRecoverableSaveStorage.cs" />
     <Compile Include="..\Assets\Game\Save\InMemorySaveStorage.cs" Link="Domain\Save\InMemorySaveStorage.cs" />
     <Compile Include="..\Assets\Game\Save\SaveMigrator.cs" Link="Domain\Save\SaveMigrator.cs" />
     <Compile Include="..\Assets\Game\Save\SaveSerializer.cs" Link="Domain\Save\SaveSerializer.cs" />

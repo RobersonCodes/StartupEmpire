@@ -33,7 +33,7 @@
 [x] 01. Auditoria do ambiente
 [x] 02. Projeto Unity (estrutura de pastas + ProjectSettings mínimo)
 [x] 03. Core/Game State
-[x] 04. Save System
+[x] 04. Save System (schema V4, escrita temporária, snapshot `.bak`, recuperação automática e migrações)
 [x] 05. Time System (dia/ciclos de trabalho limitados, ações atômicas e persistência no schema V4)
 [x] 06. Economy
 [x] 07. Primeiro capítulo (quarto → primeiro cliente)
@@ -57,7 +57,7 @@
 [x] 25. Audio (AudioManager com volume independente por categoria; sem clipes — nenhum áudio original disponível ainda)
 [~] 26. Art polish (ícone original integrado; visual interno ainda é placeholder funcional)
 [~] 27. Android optimization (portrait/safe area/navegação corrigidos; device smoke/performance pendentes)
-[x] 28. Tests — 92 `.NET` + 31 EditMode + 8 PlayMode (131 reais no cliente) + 22 no backend
+[x] 28. Tests — 94 `.NET` + 35 EditMode + 9 PlayMode (138 reais no cliente) + 22 no backend
 [ ] 29. Balancing
 [x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.610.490 bytes, SHA-256 `6D6373E0679613059F9BA445D0305BBED08E9B47C541C61BAE39FA131B013D6F`, build real (0 erros/avisos), portrait confirmado no manifesto. AAB ainda não gerado.
 [ ] 31. Documentation
