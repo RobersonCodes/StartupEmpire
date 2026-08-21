@@ -28,7 +28,15 @@ namespace StartupEmpire.Tests.EditMode
             var economy = new EconomyState(1234.5) { MonthlyRecurringRevenue = 99, Valuation = 5000 };
             var state = new GameState(player, economy) { Stage = CompanyStage.Freelancer };
             var def = catalog.Find("first_website");
-            var product = new ProductState(def) { Stage = ProductStage.Launched, DevProgress = 100, BugCount = 2, PayingCustomers = 7 };
+            var product = new ProductState(def)
+            {
+                Stage = ProductStage.Launched,
+                DevProgress = 100,
+                BugCount = 2,
+                KnownBugCount = 1,
+                HasBeenTested = true,
+                PayingCustomers = 7
+            };
             state.Products.Add(product);
 
             saveService.Save(state);
@@ -42,6 +50,8 @@ namespace StartupEmpire.Tests.EditMode
             Assert.AreEqual(1, loaded.Products.Count);
             Assert.AreEqual(ProductStage.Launched, loaded.Products[0].Stage);
             Assert.AreEqual(7, loaded.Products[0].PayingCustomers);
+            Assert.AreEqual(1, loaded.Products[0].KnownBugCount);
+            Assert.IsTrue(loaded.Products[0].HasBeenTested);
         }
 
         [Test]
@@ -72,6 +82,29 @@ namespace StartupEmpire.Tests.EditMode
             var state = saveService.Load(startingCashIfNew: 500);
 
             Assert.AreEqual(500, state.Economy.Cash);
+        }
+
+        [Test]
+        public void Load_MigratesV1ProductTestingState_WithoutLosingKnownBugs()
+        {
+            var storage = new InMemorySaveStorage();
+            var legacy = new SaveDataV1 { SchemaVersion = 1, Cash = 500 };
+            legacy.Products.Add(new ProductSaveEntry
+            {
+                DefinitionId = "first_website",
+                Stage = ProductStage.Testing.ToString(),
+                BugCount = 4
+            });
+            storage.WriteRaw(SaveSerializer.Serialize(legacy));
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+
+            var loaded = saveService.Load(startingCashIfNew: 0);
+
+            Assert.AreEqual(4, loaded.Products[0].KnownBugCount);
+            Assert.IsTrue(loaded.Products[0].HasBeenTested);
         }
     }
 }

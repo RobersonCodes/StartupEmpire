@@ -84,6 +84,8 @@ namespace StartupEmpire.Save
         public double Quality;
         public double Stability;
         public int BugCount;
+        public int KnownBugCount;
+        public bool HasBeenTested;
         public double Performance;
         public double Security;
         public double Popularity;

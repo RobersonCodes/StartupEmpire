@@ -61,11 +61,18 @@ namespace StartupEmpire.Tests.EditMode
             eventBus.Subscribe<BugFixedEvent>(e => received = e);
             var service = new DevelopmentService(new DevelopmentConfigValues { FixPointsPerCycle = 3 }, eventBus);
             var def = new ProductDefinition("p", "P", ProductCategory.Website, 100, 10, 0.08);
-            var product = new ProductState(def) { BugCount = 10, Stability = 0.5 };
+            var product = new ProductState(def)
+            {
+                BugCount = 10,
+                KnownBugCount = 10,
+                Stability = 0.5,
+                Stage = ProductStage.Testing
+            };
 
             service.FixBugs(product, cycles: 1);
 
             Assert.AreEqual(7, product.BugCount);
+            Assert.AreEqual(7, product.KnownBugCount);
             Assert.IsTrue(product.Stability > 0.5);
             Assert.IsNotNull(received);
             Assert.AreEqual(3, received.Value.Count);
@@ -80,10 +87,17 @@ namespace StartupEmpire.Tests.EditMode
             var service = new DevelopmentService(
                 new DevelopmentConfigValues { LaunchReputationPenaltyPerOutstandingBug = 0.01 }, eventBus);
             var def = new ProductDefinition("p", "P", ProductCategory.Website, 100, 10, 0.08);
-            var product = new ProductState(def) { BugCount = 5, Reputation = 0.5, Stage = ProductStage.Testing };
+            var product = new ProductState(def)
+            {
+                BugCount = 5,
+                Reputation = 0.5,
+                Stage = ProductStage.Testing,
+                HasBeenTested = true
+            };
 
-            service.Launch(product);
+            var launchedSuccessfully = service.Launch(product);
 
+            Assert.IsTrue(launchedSuccessfully);
             Assert.AreEqual(ProductStage.Launched, product.Stage);
             Assert.AreEqual(0.45, product.Reputation, 0.00001);
             Assert.IsTrue(launched);
@@ -99,6 +113,39 @@ namespace StartupEmpire.Tests.EditMode
             var found = service.TestForBugs(product, cycles: 1);
 
             Assert.AreEqual(6, found);
+            Assert.AreEqual(6, product.KnownBugCount);
+            Assert.IsTrue(product.HasBeenTested);
+        }
+
+        [Test]
+        public void Launch_RejectsProductBeforeDevelopmentAndTesting()
+        {
+            var service = new DevelopmentService(new DevelopmentConfigValues(), null);
+            var def = new ProductDefinition("p", "P", ProductCategory.Website, 100, 10, 0.08);
+            var product = new ProductState(def);
+
+            var launched = service.Launch(product);
+
+            Assert.IsFalse(launched);
+            Assert.AreEqual(ProductStage.Planning, product.Stage);
+        }
+
+        [Test]
+        public void FixBugs_OnlyFixesBugsRevealedByTesting()
+        {
+            var service = new DevelopmentService(new DevelopmentConfigValues { FixPointsPerCycle = 3 }, null);
+            var def = new ProductDefinition("p", "P", ProductCategory.Website, 100, 10, 0.08);
+            var product = new ProductState(def)
+            {
+                BugCount = 10,
+                KnownBugCount = 2,
+                Stage = ProductStage.Testing
+            };
+
+            service.FixBugs(product, cycles: 1);
+
+            Assert.AreEqual(8, product.BugCount);
+            Assert.AreEqual(0, product.KnownBugCount);
         }
     }
 }

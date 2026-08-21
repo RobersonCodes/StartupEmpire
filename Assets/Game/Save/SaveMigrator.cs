@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using StartupEmpire.Products;
 
 namespace StartupEmpire.Save
 {
     /// Aplica migrações em cadeia para nunca perder progresso quando um campo novo
-    /// é adicionado ao save (seção 25 da missão). Hoje só existe V1; futuras versões
-    /// devem encadear MigrateVNToVN+1 aqui.
+    /// é adicionado ao save (seção 25 da missão). A V2 preserva o conhecimento
+    /// de bugs e o estado de teste dos produtos salvos pela V1.
     public static class SaveMigrator
     {
-        public const int CurrentSchemaVersion = 1;
+        public const int CurrentSchemaVersion = 2;
 
         public static SaveDataV1 MigrateToCurrent(SaveDataV1 data)
         {
@@ -29,6 +30,23 @@ namespace StartupEmpire.Save
             data.RaisedInvestmentRounds ??= new List<string>();
             data.ActiveBoosts ??= new List<ActiveBoostSaveEntry>();
             data.PurchasedCosmeticIds ??= new List<string>();
+
+            if (data.SchemaVersion < 2)
+            {
+                foreach (var product in data.Products)
+                {
+                    // Antes da V2 todos os bugs eram visíveis e o teste não era
+                    // persistido. Preservar isso evita regredir saves existentes.
+                    product.KnownBugCount = Math.Max(0, product.BugCount);
+                    if (Enum.TryParse<ProductStage>(product.Stage, out var stage))
+                    {
+                        product.HasBeenTested = stage == ProductStage.Testing ||
+                            stage == ProductStage.Launched || stage == ProductStage.Maintenance ||
+                            stage == ProductStage.Discontinued;
+                    }
+                }
+                data.SchemaVersion = 2;
+            }
 
             return data;
         }

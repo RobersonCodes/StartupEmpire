@@ -30,7 +30,8 @@ namespace StartupEmpire.UI.Screens
             {
                 sb.AppendLine($"{product.Definition.DisplayName} ({product.Definition.Category})");
                 sb.AppendLine($"  Fase: {product.Stage}   Progresso: {product.DevProgress:F0}/{product.Definition.BaseDevPointsRequired:F0}");
-                sb.AppendLine($"  Qualidade: {product.Quality:P0}   Estabilidade: {product.Stability:P0}   Bugs: {product.BugCount}");
+                sb.AppendLine($"  Qualidade: {product.Quality:P0}   Estabilidade: {product.Stability:P0}   Bugs conhecidos: {product.KnownBugCount}");
+                sb.AppendLine($"  Testado: {(product.HasBeenTested ? "Sim" : "Não")}");
                 sb.AppendLine($"  Usuários: {product.Users}   Pagantes: {product.PayingCustomers}   Preço: R$ {product.Price:F2}");
                 sb.AppendLine($"  Reputação: {product.Reputation:P0}   Popularidade: {product.Popularity:P0}\n");
             }

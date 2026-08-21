@@ -25,10 +25,10 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Estrutura de pastas `Assets/Game/**`
 - [COMPLETED] GameState / IClock / SystemClock / EventBus / GameRoot (composition root)
 - [COMPLETED] Economy Engine + EconomyConfigValues (ledger, cash flow, MRR, valuation)
-- [COMPLETED] Save System versionado (SaveDataV1, migração, recuperação de save corrompido, autosave)
+- [COMPLETED] Save System versionado (schema V2, migração V1→V2, recuperação de save corrompido, autosave)
 - [COMPLETED] Idle / Offline progress (teto de horas, cálculo em lote, bugs por instabilidade)
 - [COMPLETED] Capítulo 1 (fluxo completo: aprender → dev → testar → bugs → corrigir → lançar → 1º cliente → MRR → transição de estágio)
-- [COMPLETED] Products — DevelopmentService (dev/test/fix/launch) + CustomerAcquisitionService (aquisição/conversão/churn)
+- [COMPLETED] Products — lifecycle dev/test/fix/launch agora imposto pelo domínio: bugs nascem ocultos, testes os revelam, correção atua apenas nos conhecidos e o lançamento exige desenvolvimento completo + ao menos uma rodada de testes; `CustomerAcquisitionService` cobre aquisição/conversão/churn.
 - [COMPLETED] Missions — sistema genérico orientado a dados + 4 missões do Capítulo 1
 - [COMPLETED] Achievements — Hello World, First Customer, MRR, Founder, Unicorn
 - [COMPLETED] Progression — gates Pessoa Física → Freelancer → Microempresa → Startup
@@ -51,9 +51,9 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` (cliente) — 82 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (4), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5), GemWalletService (4), StoreService (6), RankingClientService (2), ReferralClientService (3), AdRewardService (5), StatisticsService (5).
+- [COMPLETED] `Tests.NET` (cliente) — **90/90** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle do produto, bugs ocultos/conhecidos e migração de save V1→V2.
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
-- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **24/24 EditMode + 6/6 PlayMode reais passando** (117 testes reais no cliente com os 87 do `Tests.NET`), rodados via `Unity.exe -batchmode -runTests`. EditMode cobre uma amostra representativa (Economy, Development, Customer Acquisition, Save, Idle, Progression, Missions/Achievements) portada do `Tests.NET`. PlayMode testa a UI de verdade em Play Mode: cria a tela inteira, estuda, navega entre telas, contrata um funcionário, alcança Research/Company/Character e dispara/responde um evento real pelo modal. Exigiu separar o código do jogo em seu próprio assembly definition (`StartupEmpire.Game.asmdef`) e adicionar `[InternalsVisibleTo]` para os testes acessarem os setters `internal`.
+- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **27/27 EditMode + 7/7 PlayMode reais passando** (124 testes reais no cliente com os 90 do `Tests.NET`), rodados via `Unity.exe -batchmode -runTests`. PlayMode agora também percorre o lifecycle pela UI e prova que lançar cedo falha, que concluir desenvolvimento ainda exige teste e que o lançamento correto funciona.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 
@@ -67,6 +67,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 8. **Bug real de timing entre testes PlayMode**: ao expandir de 1 para 10 telas (e adicionar `AudioManager` como segundo singleton na mesma cena), `Object.Destroy()` no fim de um `[UnityTest]` não garantia que o objeto estivesse realmente destruído antes do `Awake()` do próximo teste rodar — o singleton antigo (`GameRoot.Instance` ou `AudioManager.Instance`) ainda existia, então o novo `GameObject` se autodestruía na hora (regra de "já existe uma instância") antes do `Start()` conseguir montar a UI. 2 de 4 testes falhavam com `NullReferenceException`. Corrigido trocando `Object.Destroy` por `Object.DestroyImmediate` dentro de um `[UnityTearDown]` garantido (roda depois de cada teste, sem depender de cada teste lembrar de limpar).
 9. Não era bug do jogo, mas do meu próprio teste: `GameObject.Find` não encontra objetos inativos, e o teste de navegação tentava achar o "StatusText" do Office **depois** de já ter trocado para a tela Products (quando o Office já estava com `SetActive(false)`). Corrigido capturando a referência antes de clicar no botão de navegação.
 10. `GameRoot.RunGameCycle` substituía silenciosamente um `PendingEvent` ainda não respondido ao sortear o ciclo seguinte. Corrigido para preservar o evento até `ResolveEvent`, com cobertura PlayMode. O primeiro cenário do teste também revelou uma pré-condição real do catálogo: eventos do Capítulo 1 exigem produto lançado ou cliente pagante; o teste agora prepara esse estado pela API de domínio antes do sorteio.
+11. `DevelopmentService.Launch` aceitava qualquer fase, portanto o jogador podia lançar o primeiro produto imediatamente e pular todo o Capítulo 1. A UI também não oferecia a ação Testar e revelava todos os bugs antes do teste. Corrigido no domínio, UI e save V2, com testes de regressão nas três suítes do cliente.
 
 ## 🎉 Primeira compilação real dentro do Unity Editor
 

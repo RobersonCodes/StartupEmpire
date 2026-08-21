@@ -45,7 +45,6 @@ namespace StartupEmpire.Products
             if (bugsIntroduced > 0)
             {
                 product.BugCount += bugsIntroduced;
-                _eventBus?.Publish(new BugFoundEvent(product.Id, bugsIntroduced));
             }
             product.Quality = qualityFactor;
 
@@ -55,32 +54,44 @@ namespace StartupEmpire.Products
             }
         }
 
-        /// Retorna quantos bugs (já presentes em BugCount) a rodada de testes revelou/confirmou.
+        /// Revela parte dos bugs ainda ocultos. BugCount continua sendo o total real,
+        /// enquanto KnownBugCount representa somente o que o jogador pode corrigir.
         public int TestForBugs(ProductState product, int cycles)
         {
             if (product.Stage != ProductStage.Testing && product.Stage != ProductStage.Maintenance) return 0;
             if (cycles <= 0) return 0;
-            var found = (int)Math.Round(product.BugCount * (1 - Math.Pow(1 - _config.TestEfficiencyPerCycle, cycles)));
-            return Math.Min(found, product.BugCount);
+            product.HasBeenTested = true;
+            var hiddenBugs = Math.Max(0, product.BugCount - product.KnownBugCount);
+            var found = (int)Math.Round(hiddenBugs * (1 - Math.Pow(1 - _config.TestEfficiencyPerCycle, cycles)));
+            found = Math.Min(found, hiddenBugs);
+            if (found <= 0) return 0;
+
+            product.KnownBugCount += found;
+            _eventBus?.Publish(new BugFoundEvent(product.Id, found));
+            return found;
         }
 
         public void FixBugs(ProductState product, int cycles)
         {
             if (cycles <= 0) return;
-            var toFix = (int)Math.Min(product.BugCount, _config.FixPointsPerCycle * cycles);
+            if (product.Stage != ProductStage.Testing && product.Stage != ProductStage.Maintenance) return;
+            product.KnownBugCount = Math.Min(product.KnownBugCount, product.BugCount);
+            var toFix = (int)Math.Min(product.KnownBugCount, _config.FixPointsPerCycle * cycles);
             if (toFix <= 0) return;
             product.BugCount -= toFix;
+            product.KnownBugCount -= toFix;
             product.Stability = Math.Clamp(product.Stability + toFix * 0.01, 0, 1);
             _eventBus?.Publish(new BugFixedEvent(product.Id, toFix));
         }
 
-        public void Launch(ProductState product)
+        public bool Launch(ProductState product)
         {
-            if (product.Stage == ProductStage.Launched) return;
+            if (product.Stage != ProductStage.Testing || !product.HasBeenTested) return false;
             var penalty = product.BugCount * _config.LaunchReputationPenaltyPerOutstandingBug;
             product.Reputation = Math.Clamp(product.Reputation - penalty, 0, 1);
             product.Stage = ProductStage.Launched;
             _eventBus?.Publish(new ProductLaunchedEvent(product.Id));
+            return true;
         }
     }
 }

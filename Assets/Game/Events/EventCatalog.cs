@@ -61,8 +61,11 @@ namespace StartupEmpire.Events
                         {
                             Id = "fix_now",
                             Label = "Corrigir imediatamente",
-                            Apply = (state, economy) => ForEachLaunchedProduct(state,
-                                p => p.BugCount = p.BugCount / 2)
+                            Apply = (state, economy) => ForEachLaunchedProduct(state, p =>
+                            {
+                                p.BugCount = p.BugCount / 2;
+                                p.KnownBugCount = Math.Min(p.KnownBugCount, p.BugCount);
+                            })
                         },
                         new EventChoice
                         {
@@ -82,6 +85,7 @@ namespace StartupEmpire.Events
                                     ForEachLaunchedProduct(state, p =>
                                     {
                                         p.BugCount = 0;
+                                        p.KnownBugCount = 0;
                                         p.Stability = Math.Min(1, p.Stability + 0.10);
                                     });
                                 }

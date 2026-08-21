@@ -114,6 +114,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - `GameRoot.RunGameCycle` podia descartar um evento ainda sem resposta ao sobrescrever `PendingEvent` no ciclo seguinte. Agora só sorteia outro evento quando não existe um pendente; o teste executa 300 ciclos adicionais e confirma que a mesma instância permanece até a escolha.
 - O primeiro teste do modal assumia que 300 sorteios bastavam, mas nenhum evento era elegível enquanto o produto continuava em `Planning`. O cenário agora lança o produto pela API real antes do sorteio.
 
+### Added (continuação — lifecycle íntegro do produto)
+- `ProductState.KnownBugCount` e `HasBeenTested`: bugs introduzidos durante desenvolvimento ficam ocultos; `TestForBugs` revela uma fração e somente bugs conhecidos podem ser corrigidos.
+- Botão real `Testar Produto` na Office. Office e Products mostram apenas bugs conhecidos e o estado de teste, sem vazar a fonte de verdade oculta para a UI.
+- Schema de save V2 com migração V1→V2: saves existentes preservam como conhecidos os bugs que a versão antiga já mostrava e produtos em Testing/Launched continuam reconhecidos como testados.
+- Teste PlayMode percorre o lifecycle pelos botões: tentativa precoce bloqueada, desenvolvimento, segunda tentativa ainda bloqueada, teste e lançamento válido. Evidência atual: 90/90 `.NET`, 27/27 EditMode e 7/7 PlayMode.
+
+### Fixed (continuação)
+- `DevelopmentService.Launch` aceitava `Planning`, `Development` e qualquer outro estágio. Agora retorna `false` sem efeito fora de `Testing` ou antes da primeira rodada de testes.
+- `FixBugs` podia corrigir bugs ainda não descobertos e operar fora de Testing/Maintenance. Agora respeita estágio e conhecimento do jogador.
+
 ### Known limitations
 - Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.

@@ -30,7 +30,15 @@ namespace StartupEmpire.Domain.Tests
             var economy = new EconomyState(1234.5) { MonthlyRecurringRevenue = 99, Valuation = 5000 };
             var state = new GameState(player, economy) { Stage = CompanyStage.Freelancer };
             var def = catalog.Find("first_website");
-            var product = new ProductState(def) { Stage = ProductStage.Launched, DevProgress = 100, BugCount = 2, PayingCustomers = 7 };
+            var product = new ProductState(def)
+            {
+                Stage = ProductStage.Launched,
+                DevProgress = 100,
+                BugCount = 2,
+                KnownBugCount = 1,
+                HasBeenTested = true,
+                PayingCustomers = 7
+            };
             state.Products.Add(product);
             state.Missions.CompletedMissionIds.Add("hello_world");
             state.UnlockedAchievements.Add("hello_world");
@@ -55,6 +63,8 @@ namespace StartupEmpire.Domain.Tests
             Assert.Single(loaded.Products);
             Assert.Equal(ProductStage.Launched, loaded.Products[0].Stage);
             Assert.Equal(7, loaded.Products[0].PayingCustomers);
+            Assert.Equal(1, loaded.Products[0].KnownBugCount);
+            Assert.True(loaded.Products[0].HasBeenTested);
             Assert.Contains("hello_world", loaded.Missions.CompletedMissionIds);
             Assert.Contains("hello_world", loaded.UnlockedAchievements);
             Assert.Equal(3, loaded.Upgrades.GetLevel("better_computer"));
@@ -95,6 +105,29 @@ namespace StartupEmpire.Domain.Tests
             var state = saveService.Load(startingCashIfNew: 500);
 
             Assert.Equal(500, state.Economy.Cash);
+        }
+
+        [Fact]
+        public void Load_MigratesV1ProductTestingState_WithoutLosingKnownBugs()
+        {
+            var storage = new InMemorySaveStorage();
+            var legacy = new SaveDataV1 { SchemaVersion = 1, Cash = 500 };
+            legacy.Products.Add(new ProductSaveEntry
+            {
+                DefinitionId = "first_website",
+                Stage = ProductStage.Testing.ToString(),
+                BugCount = 4
+            });
+            storage.WriteRaw(SaveSerializer.Serialize(legacy));
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+
+            var loaded = saveService.Load(startingCashIfNew: 0);
+
+            Assert.Equal(4, loaded.Products[0].KnownBugCount);
+            Assert.True(loaded.Products[0].HasBeenTested);
         }
 
         [Fact]

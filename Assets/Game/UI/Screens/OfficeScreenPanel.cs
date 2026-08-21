@@ -17,10 +17,11 @@ namespace StartupEmpire.UI.Screens
             var root = UiFactory.CreatePanel(contentParent, UiFactory.PanelBackground, "OfficePanel");
 
             _statusText = UiFactory.CreateText(root.transform, "", 30, TextAnchor.UpperLeft,
-                new Vector2(0.03f, 0.42f), new Vector2(0.97f, 0.97f), "StatusText");
+                new Vector2(0.03f, 0.50f), new Vector2(0.97f, 0.97f), "StatusText");
 
-            UiFactory.CreateButton(root.transform, "Estudar Fundamentos", new Vector2(0.03f, 0.34f), new Vector2(0.97f, 0.40f), OnStudy);
-            UiFactory.CreateButton(root.transform, "Desenvolver Produto", new Vector2(0.03f, 0.26f), new Vector2(0.97f, 0.32f), OnDevelop);
+            UiFactory.CreateButton(root.transform, "Estudar Fundamentos", new Vector2(0.03f, 0.42f), new Vector2(0.97f, 0.48f), OnStudy);
+            UiFactory.CreateButton(root.transform, "Desenvolver Produto", new Vector2(0.03f, 0.34f), new Vector2(0.97f, 0.40f), OnDevelop);
+            UiFactory.CreateButton(root.transform, "Testar Produto", new Vector2(0.03f, 0.26f), new Vector2(0.97f, 0.32f), OnTest);
             UiFactory.CreateButton(root.transform, "Corrigir Bugs", new Vector2(0.03f, 0.18f), new Vector2(0.97f, 0.24f), OnFixBugs);
             UiFactory.CreateButton(root.transform, "Lançar Produto", new Vector2(0.03f, 0.10f), new Vector2(0.97f, 0.16f), OnLaunch);
             UiFactory.CreateButton(root.transform, "Avançar Ciclo", new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.08f), OnRunCycle);
@@ -46,7 +47,15 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.Development.FixBugs(product, 1);
+            GameRoot.Instance.FixProductBugs(product, 1);
+            Refresh();
+        }
+
+        private void OnTest()
+        {
+            var product = FirstProduct();
+            if (product == null) return;
+            GameRoot.Instance.TestProduct(product, 1);
             Refresh();
         }
 
@@ -54,7 +63,7 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.Development.Launch(product);
+            GameRoot.Instance.LaunchProduct(product);
             Refresh();
         }
 
@@ -89,7 +98,8 @@ namespace StartupEmpire.UI.Screens
                     $"\n\nProduto: {product.Definition.DisplayName}\n" +
                     $"Fase: {product.Stage}\n" +
                     $"Progresso: {product.DevProgress:F0}/{product.Definition.BaseDevPointsRequired:F0}\n" +
-                    $"Bugs: {product.BugCount}\n" +
+                    $"Testado: {(product.HasBeenTested ? "Sim" : "Não")}\n" +
+                    $"Bugs conhecidos: {product.KnownBugCount}\n" +
                     $"Usuários: {product.Users}   Pagantes: {product.PayingCustomers}";
             }
 

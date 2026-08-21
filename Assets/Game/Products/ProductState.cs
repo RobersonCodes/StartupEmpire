@@ -10,6 +10,8 @@ namespace StartupEmpire.Products
         public double Quality { get; internal set; } = 0.5;
         public double Stability { get; internal set; } = 1.0;
         public int BugCount { get; internal set; }
+        public int KnownBugCount { get; internal set; }
+        public bool HasBeenTested { get; internal set; }
         public double Performance { get; internal set; } = 0.5;
         public double Security { get; internal set; } = 0.5;
         public double Popularity { get; internal set; }

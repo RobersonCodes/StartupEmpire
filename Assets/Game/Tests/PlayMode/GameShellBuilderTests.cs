@@ -5,6 +5,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using StartupEmpire.Audio;
 using StartupEmpire.Core;
+using StartupEmpire.Products;
 using StartupEmpire.UI;
 
 namespace StartupEmpire.Tests.PlayMode
@@ -42,6 +43,7 @@ namespace StartupEmpire.Tests.PlayMode
             StringAssert.Contains("Estágio", text.text);
 
             Assert.IsNotNull(GameObject.Find("Button_Estudar Fundamentos"));
+            Assert.IsNotNull(GameObject.Find("Button_Testar Produto"));
             Assert.IsNotNull(GameObject.Find("Button_Products"));
             Assert.IsNotNull(GameObject.Find("Button_Settings"));
         }
@@ -109,6 +111,32 @@ namespace StartupEmpire.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator ProductLifecycle_BlocksEarlyLaunch_ThenRequiresTesting()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            var product = GameRoot.Instance.State.Products[0];
+            GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(ProductStage.Planning, product.Stage,
+                "O produto não pode ser lançado antes de desenvolver e testar");
+
+            var developButton = GameObject.Find("Button_Desenvolver Produto").GetComponent<Button>();
+            for (var i = 0; i < 10; i++) developButton.onClick.Invoke();
+            Assert.AreEqual(ProductStage.Testing, product.Stage);
+
+            GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(ProductStage.Testing, product.Stage,
+                "Concluir o desenvolvimento não substitui uma rodada de testes");
+
+            GameObject.Find("Button_Testar Produto").GetComponent<Button>().onClick.Invoke();
+            Assert.IsTrue(product.HasBeenTested);
+
+            GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(ProductStage.Launched, product.Stage);
+        }
+
+        [UnityTest]
         public IEnumerator NewScreens_AreReachable_ViaNavBar()
         {
             new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
@@ -139,7 +167,10 @@ namespace StartupEmpire.Tests.PlayMode
 
             // Os eventos do capítulo 1 só ficam elegíveis depois que existe um
             // produto lançado ou um cliente pagante.
-            GameRoot.Instance.Development.Launch(GameRoot.Instance.State.Products[0]);
+            var product = GameRoot.Instance.State.Products[0];
+            GameRoot.Instance.DevelopProduct(product, Research.KnowledgeTracks.Fundamentos, 10);
+            GameRoot.Instance.TestProduct(product, 1);
+            Assert.IsTrue(GameRoot.Instance.LaunchProduct(product));
 
             // BaseTriggerChancePerCycle é 5% por ciclo; 300 ciclos deixa a chance de
             // nenhum evento disparar em torno de 0,95^300 ≈ 0,00002%.

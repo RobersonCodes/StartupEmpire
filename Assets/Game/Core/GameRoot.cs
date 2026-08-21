@@ -219,6 +219,12 @@ namespace StartupEmpire.Core
             Learning.Study(State.Player, track, cycles, knowledgeMultiplier);
         }
 
+        public int TestProduct(ProductState product, int cycles) => Development.TestForBugs(product, cycles);
+
+        public void FixProductBugs(ProductState product, int cycles) => Development.FixBugs(product, cycles);
+
+        public bool LaunchProduct(ProductState product) => Development.Launch(product);
+
         public bool PurchaseUpgrade(string upgradeId)
         {
             var definition = Upgrades.Find(upgradeId);
