@@ -203,27 +203,75 @@ namespace StartupEmpire.Core
             PendingEvent = null;
         }
 
-        public void DevelopProduct(ProductState product, string knowledgeTrack, int cycles)
+        public GameActionResult DevelopProduct(ProductState product, string knowledgeTrack, int cycles)
         {
+            if (product == null) return GameActionResult.Rejected("Produto não encontrado.");
+            if (cycles <= 0) return GameActionResult.Rejected("A duração precisa ser positiva.");
+            if (product.Stage != ProductStage.Planning && product.Stage != ProductStage.Development)
+                return GameActionResult.Rejected("Este produto não está em desenvolvimento.");
+            if (!State.Player.TryConsumeWorkCycles(cycles))
+                return GameActionResult.Rejected("Sem ciclos de trabalho. Encerre o dia para descansar.");
+
             var devSpeedMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.DevSpeedMultiplier, State.Upgrades)
                 * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Backend)
                 * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Frontend)
                 * Store.GetBoostMultiplier(State.Store, StoreItemEffectType.DevSpeedBoost);
             var bugRateMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.BugRateReduction, State.Upgrades);
             Development.Develop(product, State.Player, knowledgeTrack, cycles, devSpeedMultiplier, bugRateMultiplier);
+            return GameActionResult.Completed("Desenvolvimento concluído por este ciclo.");
         }
 
-        public void StudyTrack(string track, int cycles)
+        public GameActionResult StudyTrack(string track, int cycles)
         {
+            if (string.IsNullOrWhiteSpace(track)) return GameActionResult.Rejected("Trilha de estudo inválida.");
+            if (cycles <= 0) return GameActionResult.Rejected("A duração precisa ser positiva.");
+            if (!State.Player.TryConsumeWorkCycles(cycles))
+                return GameActionResult.Rejected("Sem ciclos de trabalho. Encerre o dia para descansar.");
+
             var knowledgeMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.KnowledgeGainMultiplier, State.Upgrades);
             Learning.Study(State.Player, track, cycles, knowledgeMultiplier);
+            return GameActionResult.Completed($"Você estudou {track}.");
         }
 
-        public int TestProduct(ProductState product, int cycles) => Development.TestForBugs(product, cycles);
+        public GameActionResult TestProduct(ProductState product, int cycles)
+        {
+            if (product == null) return GameActionResult.Rejected("Produto não encontrado.");
+            if (cycles <= 0) return GameActionResult.Rejected("A duração precisa ser positiva.");
+            if (product.Stage != ProductStage.Testing && product.Stage != ProductStage.Maintenance)
+                return GameActionResult.Rejected("Conclua o desenvolvimento antes de testar.");
+            if (!State.Player.TryConsumeWorkCycles(cycles))
+                return GameActionResult.Rejected("Sem ciclos de trabalho. Encerre o dia para descansar.");
 
-        public void FixProductBugs(ProductState product, int cycles) => Development.FixBugs(product, cycles);
+            var found = Development.TestForBugs(product, cycles);
+            return GameActionResult.Completed(found > 0
+                ? $"Teste concluído: {found} bug(s) descoberto(s)."
+                : "Teste concluído: nenhum bug novo encontrado.", found);
+        }
+
+        public GameActionResult FixProductBugs(ProductState product, int cycles)
+        {
+            if (product == null) return GameActionResult.Rejected("Produto não encontrado.");
+            if (cycles <= 0) return GameActionResult.Rejected("A duração precisa ser positiva.");
+            if (product.Stage != ProductStage.Testing && product.Stage != ProductStage.Maintenance)
+                return GameActionResult.Rejected("O produto não está pronto para correções.");
+            if (product.KnownBugCount <= 0) return GameActionResult.Rejected("Não há bugs conhecidos para corrigir.");
+            if (!State.Player.TryConsumeWorkCycles(cycles))
+                return GameActionResult.Rejected("Sem ciclos de trabalho. Encerre o dia para descansar.");
+
+            var before = product.KnownBugCount;
+            Development.FixBugs(product, cycles);
+            var fixedCount = before - product.KnownBugCount;
+            return GameActionResult.Completed($"{fixedCount} bug(s) corrigido(s).", fixedCount);
+        }
 
         public bool LaunchProduct(ProductState product) => Development.Launch(product);
+
+        public GameActionResult EndWorkDay()
+        {
+            RunGameCycle(1);
+            State.Player.StartNextDay();
+            return GameActionResult.Completed($"Dia encerrado. Começou o dia {State.Player.CurrentDay}.");
+        }
 
         public bool PurchaseUpgrade(string upgradeId)
         {

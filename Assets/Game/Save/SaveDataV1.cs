@@ -9,6 +9,9 @@ namespace StartupEmpire.Save
         public int SchemaVersion = 1;
         public string PlayerId;
         public string PlayerName = "Founder";
+        public int WorkCyclesPerDay = 4;
+        public int CurrentDay = 1;
+        public int RemainingWorkCycles = 4;
         public List<KnowledgeEntry> Knowledge = new();
         public double Cash;
         public double MonthlyRecurringRevenue;

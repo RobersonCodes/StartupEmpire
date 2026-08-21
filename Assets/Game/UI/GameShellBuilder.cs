@@ -73,7 +73,8 @@ namespace StartupEmpire.UI
             var state = GameRoot.Instance.State;
             _topBarText.text =
                 $"Caixa: R$ {state.Economy.Cash:F0}   Valuation: R$ {state.Economy.Valuation:F0}   " +
-                $"Gems: {state.GemWallet.Balance}   {state.Stage}";
+                $"Gems: {state.GemWallet.Balance}   Dia {state.Player.CurrentDay}   " +
+                $"Tempo: {state.Player.RemainingWorkCycles}/{state.Player.WorkCyclesPerDay}   {state.Stage}";
 
             _eventModal.Tick();
         }

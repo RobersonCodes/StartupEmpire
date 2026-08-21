@@ -5,11 +5,11 @@ using StartupEmpire.Products;
 namespace StartupEmpire.Save
 {
     /// Aplica migrações em cadeia para nunca perder progresso quando um campo novo
-    /// é adicionado ao save (seção 25 da missão). A V2 preserva o conhecimento
-    /// de bugs e o estado de teste dos produtos salvos pela V1.
+    /// é adicionado ao save (seção 25 da missão). A V2 preserva bugs/testes;
+    /// a V3 introduz o calendário de trabalho persistido.
     public static class SaveMigrator
     {
-        public const int CurrentSchemaVersion = 2;
+        public const int CurrentSchemaVersion = 3;
 
         public static SaveDataV1 MigrateToCurrent(SaveDataV1 data)
         {
@@ -46,6 +46,14 @@ namespace StartupEmpire.Save
                     }
                 }
                 data.SchemaVersion = 2;
+            }
+
+            if (data.SchemaVersion < 3)
+            {
+                data.WorkCyclesPerDay = 4;
+                data.CurrentDay = 1;
+                data.RemainingWorkCycles = data.WorkCyclesPerDay;
+                data.SchemaVersion = 3;
             }
 
             return data;

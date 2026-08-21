@@ -27,6 +27,7 @@ namespace StartupEmpire.Domain.Tests
 
             var player = new PlayerState { PlayerId = "player-abc123", Name = "Ana" };
             player.AddKnowledge(KnowledgeTracks.Fundamentos, 42);
+            player.TryConsumeWorkCycles(2);
             var economy = new EconomyState(1234.5) { MonthlyRecurringRevenue = 99, Valuation = 5000 };
             var state = new GameState(player, economy) { Stage = CompanyStage.Freelancer };
             var def = catalog.Find("first_website");
@@ -58,6 +59,8 @@ namespace StartupEmpire.Domain.Tests
             Assert.Equal("player-abc123", loaded.Player.PlayerId);
             Assert.Equal("Ana", loaded.Player.Name);
             Assert.Equal(42, loaded.Player.GetKnowledge(KnowledgeTracks.Fundamentos));
+            Assert.Equal(1, loaded.Player.CurrentDay);
+            Assert.Equal(2, loaded.Player.RemainingWorkCycles);
             Assert.Equal(1234.5, loaded.Economy.Cash);
             Assert.Equal(CompanyStage.Freelancer, loaded.Stage);
             Assert.Single(loaded.Products);
@@ -128,6 +131,8 @@ namespace StartupEmpire.Domain.Tests
 
             Assert.Equal(4, loaded.Products[0].KnownBugCount);
             Assert.True(loaded.Products[0].HasBeenTested);
+            Assert.Equal(1, loaded.Player.CurrentDay);
+            Assert.Equal(4, loaded.Player.RemainingWorkCycles);
         }
 
         [Fact]

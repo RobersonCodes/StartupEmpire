@@ -34,7 +34,8 @@ namespace StartupEmpire.UI.Screens
             sb.AppendLine("PERFIL\n");
             sb.AppendLine($"Nome: {player.Name}");
             sb.AppendLine($"ID: {player.PlayerId}");
-            sb.AppendLine($"Ciclos de trabalho por dia: {player.WorkCyclesPerDay}");
+            sb.AppendLine($"Dia atual: {player.CurrentDay}");
+            sb.AppendLine($"Tempo hoje: {player.RemainingWorkCycles}/{player.WorkCyclesPerDay} ciclos");
             _text.text = sb.ToString();
         }
     }

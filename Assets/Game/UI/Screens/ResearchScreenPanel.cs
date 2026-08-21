@@ -17,6 +17,7 @@ namespace StartupEmpire.UI.Screens
         };
 
         private Text _text;
+        private string _lastActionMessage;
 
         public void Build(Transform contentParent, ScreenManager screenManager)
         {
@@ -43,7 +44,11 @@ namespace StartupEmpire.UI.Screens
                 var minY = maxY - cellHeight + 0.01f;
 
                 UiFactory.CreateButton(root.transform, track, new Vector2(minX, minY), new Vector2(maxX, maxY),
-                    () => { GameRoot.Instance.StudyTrack(track, 1); Refresh(); });
+                    () =>
+                    {
+                        _lastActionMessage = GameRoot.Instance.StudyTrack(track, 1).Message;
+                        Refresh();
+                    });
             }
 
             screenManager.Register("Research", root);
@@ -56,6 +61,9 @@ namespace StartupEmpire.UI.Screens
             sb.AppendLine("CONHECIMENTO\n");
 
             var player = GameRoot.Instance.State.Player;
+            sb.AppendLine($"Dia {player.CurrentDay}   Tempo: {player.RemainingWorkCycles}/{player.WorkCyclesPerDay}");
+            if (!string.IsNullOrEmpty(_lastActionMessage)) sb.AppendLine(_lastActionMessage);
+            sb.AppendLine();
             foreach (var track in Tracks)
             {
                 sb.AppendLine($"{track}: {player.GetKnowledge(track)}");

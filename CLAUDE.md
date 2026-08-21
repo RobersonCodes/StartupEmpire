@@ -1,4 +1,4 @@
-# Handoff para o Claude — 2026-08-21 01:10 BRT
+# Handoff para o Claude — atualizado em 2026-08-21
 
 Continue do estado atual; não reinicialize o projeto e não reverta os commits abaixo.
 
@@ -13,14 +13,19 @@ Continue do estado atual; não reinicialize o projeto e não reverta os commits 
    - Bugs ocultos (`BugCount`) separados dos descobertos (`KnownBugCount`).
    - Correção atua somente nos descobertos.
    - Save schema V2 e migração V1→V2.
-3. Incremento final desta sessão: ícone original Android integrado e APK reconstruído. Consulte `git log -3 --oneline` para o hash do commit.
+3. Ícone original Android integrado e APK reconstruído. Consulte `git log -4 --oneline` para os hashes mais recentes.
+4. Incremento posterior: tempo como recurso real.
+   - Dia atual e ciclos restantes persistidos no save schema V3.
+   - Estudar/desenvolver/testar/corrigir consomem ciclo somente quando válidos.
+   - `Encerrar Dia` executa um ciclo econômico e restaura quatro ciclos.
+   - Office/Research exibem limite e motivo de falha.
 
 ## Evidência verificada
 
-- Domínio: 90/90 (`dotnet test Tests.NET/StartupEmpire.Domain.Tests.csproj`).
+- Domínio: 92/92 (`dotnet test Tests.NET/StartupEmpire.Domain.Tests.csproj`).
 - Backend: 22/22 (`dotnet test backend/StartupEmpire.Api.Tests/StartupEmpire.Api.Tests.csproj`); dentro de sandbox o Windows Event Log causa falso negativo, portanto rode com permissão normal.
-- Unity EditMode: 27/27.
-- Unity PlayMode: 7/7.
+- Unity EditMode: 29/29.
+- Unity PlayMode: 8/8.
 - APK: `Builds/Android/StartupEmpire-debug.apk` (ignorado pelo Git), 45.648.468 bytes.
 - SHA-256: `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`.
 - BuildReport final: `Succeeded`, 0 erros, 0 avisos.
@@ -39,10 +44,10 @@ Continue do estado atual; não reinicialize o projeto e não reverta os commits 
 
 ## Próximos P0 recomendados
 
-1. Implementar dias/ciclos de trabalho persistidos: estudar, desenvolver, testar e corrigir devem consumir recurso limitado; "Encerrar dia" executa o ciclo econômico uma vez.
-2. Corrigir UX Android portrait: safe area, no máximo 4–5 destinos principais + menu "Mais", alvos de toque adequados e botão Voltar.
-3. Criar Splash/Main Menu/New Game/Continue e tutorial contextual persistido.
-4. Ligar emulador/dispositivo, instalar o APK atual e fazer smoke test + logcat antes de declarar runtime Android validado.
+1. Corrigir UX Android portrait: safe area, no máximo 4–5 destinos principais + menu "Mais", alvos de toque adequados e botão Voltar.
+2. Criar Splash/Main Menu/New Game/Continue e tutorial contextual persistido.
+3. Ligar emulador/dispositivo, instalar o APK atual e fazer smoke test + logcat antes de declarar runtime Android validado.
+4. Definir unidade econômica do dia (salários hoje são cobrados por ciclo, apesar do rótulo mensal) e rebalancear com testes.
 
 ## Limitações que não devem ser esquecidas
 

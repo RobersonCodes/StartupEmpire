@@ -44,6 +44,7 @@ namespace StartupEmpire.Tests.PlayMode
 
             Assert.IsNotNull(GameObject.Find("Button_Estudar Fundamentos"));
             Assert.IsNotNull(GameObject.Find("Button_Testar Produto"));
+            Assert.IsNotNull(GameObject.Find("Button_Encerrar Dia"));
             Assert.IsNotNull(GameObject.Find("Button_Products"));
             Assert.IsNotNull(GameObject.Find("Button_Settings"));
         }
@@ -62,6 +63,33 @@ namespace StartupEmpire.Tests.PlayMode
 
             var knowledgeAfter = GameRoot.Instance.State.Player.GetKnowledge(Research.KnowledgeTracks.Fundamentos);
             Assert.Greater(knowledgeAfter, knowledgeBefore);
+            Assert.AreEqual(GameRoot.Instance.State.Player.WorkCyclesPerDay - 1,
+                GameRoot.Instance.State.Player.RemainingWorkCycles);
+        }
+
+        [UnityTest]
+        public IEnumerator WorkTime_BlocksExtraActions_AndEndDayRestoresCycles()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            var player = GameRoot.Instance.State.Player;
+            var studyButton = GameObject.Find("Button_Estudar Fundamentos").GetComponent<Button>();
+            for (var i = 0; i < player.WorkCyclesPerDay; i++) studyButton.onClick.Invoke();
+
+            var knowledgeAtLimit = player.GetKnowledge(Research.KnowledgeTracks.Fundamentos);
+            studyButton.onClick.Invoke();
+            Assert.AreEqual(knowledgeAtLimit, player.GetKnowledge(Research.KnowledgeTracks.Fundamentos),
+                "Uma ação sem tempo não pode alterar o estado");
+            Assert.AreEqual(0, player.RemainingWorkCycles);
+            StringAssert.Contains("Sem ciclos", GameObject.Find("StatusText").GetComponent<Text>().text);
+
+            GameObject.Find("Button_Encerrar Dia").GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(2, player.CurrentDay);
+            Assert.AreEqual(player.WorkCyclesPerDay, player.RemainingWorkCycles);
+
+            studyButton.onClick.Invoke();
+            Assert.Greater(player.GetKnowledge(Research.KnowledgeTracks.Fundamentos), knowledgeAtLimit);
         }
 
         [UnityTest]
@@ -122,7 +150,12 @@ namespace StartupEmpire.Tests.PlayMode
                 "O produto não pode ser lançado antes de desenvolver e testar");
 
             var developButton = GameObject.Find("Button_Desenvolver Produto").GetComponent<Button>();
-            for (var i = 0; i < 10; i++) developButton.onClick.Invoke();
+            var endDayButton = GameObject.Find("Button_Encerrar Dia").GetComponent<Button>();
+            for (var i = 0; i < 10; i++)
+            {
+                if (GameRoot.Instance.State.Player.RemainingWorkCycles == 0) endDayButton.onClick.Invoke();
+                developButton.onClick.Invoke();
+            }
             Assert.AreEqual(ProductStage.Testing, product.Stage);
 
             GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
@@ -168,9 +201,10 @@ namespace StartupEmpire.Tests.PlayMode
             // Os eventos do capítulo 1 só ficam elegíveis depois que existe um
             // produto lançado ou um cliente pagante.
             var product = GameRoot.Instance.State.Products[0];
-            GameRoot.Instance.DevelopProduct(product, Research.KnowledgeTracks.Fundamentos, 10);
-            GameRoot.Instance.TestProduct(product, 1);
-            Assert.IsTrue(GameRoot.Instance.LaunchProduct(product));
+            GameRoot.Instance.Development.Develop(product, GameRoot.Instance.State.Player,
+                Research.KnowledgeTracks.Fundamentos, 10);
+            GameRoot.Instance.Development.TestForBugs(product, 1);
+            Assert.IsTrue(GameRoot.Instance.Development.Launch(product));
 
             // BaseTriggerChancePerCycle é 5% por ciclo; 300 ciclos deixa a chance de
             // nenhum evento disparar em torno de 0,95^300 ≈ 0,00002%.

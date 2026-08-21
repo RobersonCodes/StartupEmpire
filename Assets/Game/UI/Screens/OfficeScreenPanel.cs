@@ -11,6 +11,7 @@ namespace StartupEmpire.UI.Screens
     public sealed class OfficeScreenPanel : IScreenPanel
     {
         private Text _statusText;
+        private string _lastActionMessage = "Escolha como usar seu tempo hoje.";
 
         public void Build(Transform contentParent, ScreenManager screenManager)
         {
@@ -24,14 +25,14 @@ namespace StartupEmpire.UI.Screens
             UiFactory.CreateButton(root.transform, "Testar Produto", new Vector2(0.03f, 0.26f), new Vector2(0.97f, 0.32f), OnTest);
             UiFactory.CreateButton(root.transform, "Corrigir Bugs", new Vector2(0.03f, 0.18f), new Vector2(0.97f, 0.24f), OnFixBugs);
             UiFactory.CreateButton(root.transform, "Lançar Produto", new Vector2(0.03f, 0.10f), new Vector2(0.97f, 0.16f), OnLaunch);
-            UiFactory.CreateButton(root.transform, "Avançar Ciclo", new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.08f), OnRunCycle);
+            UiFactory.CreateButton(root.transform, "Encerrar Dia", new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.08f), OnEndDay);
 
             screenManager.Register("Office", root);
         }
 
         private void OnStudy()
         {
-            GameRoot.Instance.StudyTrack(KnowledgeTracks.Fundamentos, 1);
+            Record(GameRoot.Instance.StudyTrack(KnowledgeTracks.Fundamentos, 1));
             Refresh();
         }
 
@@ -39,7 +40,7 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.DevelopProduct(product, KnowledgeTracks.Fundamentos, 1);
+            Record(GameRoot.Instance.DevelopProduct(product, KnowledgeTracks.Fundamentos, 1));
             Refresh();
         }
 
@@ -47,7 +48,7 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.FixProductBugs(product, 1);
+            Record(GameRoot.Instance.FixProductBugs(product, 1));
             Refresh();
         }
 
@@ -55,7 +56,7 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.TestProduct(product, 1);
+            Record(GameRoot.Instance.TestProduct(product, 1));
             Refresh();
         }
 
@@ -63,15 +64,19 @@ namespace StartupEmpire.UI.Screens
         {
             var product = FirstProduct();
             if (product == null) return;
-            GameRoot.Instance.LaunchProduct(product);
+            _lastActionMessage = GameRoot.Instance.LaunchProduct(product)
+                ? "Produto lançado! Agora conquiste clientes."
+                : "Para lançar, conclua o desenvolvimento e faça ao menos um teste.";
             Refresh();
         }
 
-        private void OnRunCycle()
+        private void OnEndDay()
         {
-            GameRoot.Instance.RunGameCycle(1);
+            Record(GameRoot.Instance.EndWorkDay());
             Refresh();
         }
+
+        private void Record(GameActionResult result) => _lastActionMessage = result.Message;
 
         private static ProductState FirstProduct()
         {
@@ -86,11 +91,13 @@ namespace StartupEmpire.UI.Screens
             var product = FirstProduct();
 
             var text =
+                $"Dia {state.Player.CurrentDay}   Tempo: {state.Player.RemainingWorkCycles}/{state.Player.WorkCyclesPerDay} ciclos\n" +
                 $"Caixa: R$ {state.Economy.Cash:F2}\n" +
                 $"Valuation: R$ {state.Economy.Valuation:F2}\n" +
                 $"MRR: R$ {state.Economy.MonthlyRecurringRevenue:F2}\n" +
                 $"Gems: {state.GemWallet.Balance}\n" +
-                $"Estágio: {state.Stage}";
+                $"Estágio: {state.Stage}\n" +
+                $"{_lastActionMessage}";
 
             if (product != null)
             {

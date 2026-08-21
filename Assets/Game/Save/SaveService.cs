@@ -41,6 +41,9 @@ namespace StartupEmpire.Save
                 SchemaVersion = SaveMigrator.CurrentSchemaVersion,
                 PlayerId = state.Player.PlayerId,
                 PlayerName = state.Player.Name,
+                WorkCyclesPerDay = state.Player.WorkCyclesPerDay,
+                CurrentDay = state.Player.CurrentDay,
+                RemainingWorkCycles = state.Player.RemainingWorkCycles,
                 Cash = state.Economy.Cash,
                 MonthlyRecurringRevenue = state.Economy.MonthlyRecurringRevenue,
                 Valuation = state.Economy.Valuation,
@@ -156,6 +159,7 @@ namespace StartupEmpire.Save
             data = SaveMigrator.MigrateToCurrent(data);
 
             var player = new PlayerState { PlayerId = data.PlayerId, Name = data.PlayerName };
+            player.RestoreWorkSchedule(data.WorkCyclesPerDay, data.CurrentDay, data.RemainingWorkCycles);
             foreach (var knowledge in data.Knowledge) player.AddKnowledge(knowledge.Track, knowledge.Amount);
 
             var economy = new EconomyState(data.Cash)

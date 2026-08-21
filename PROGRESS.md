@@ -25,7 +25,8 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Estrutura de pastas `Assets/Game/**`
 - [COMPLETED] GameState / IClock / SystemClock / EventBus / GameRoot (composition root)
 - [COMPLETED] Economy Engine + EconomyConfigValues (ledger, cash flow, MRR, valuation)
-- [COMPLETED] Save System versionado (schema V2, migração V1→V2, recuperação de save corrompido, autosave)
+- [COMPLETED] Save System versionado (schema V3, migrações V1→V2→V3, recuperação de save corrompido, autosave)
+- [COMPLETED] Calendário de trabalho — dia atual + 4 ciclos limitados por dia; estudar/desenvolver/testar/corrigir consomem tempo atomicamente, falhas não consomem nem alteram estado, e Encerrar Dia executa um ciclo econômico e restaura o tempo.
 - [COMPLETED] Idle / Offline progress (teto de horas, cálculo em lote, bugs por instabilidade)
 - [COMPLETED] Capítulo 1 (fluxo completo: aprender → dev → testar → bugs → corrigir → lançar → 1º cliente → MRR → transição de estágio)
 - [COMPLETED] Products — lifecycle dev/test/fix/launch agora imposto pelo domínio: bugs nascem ocultos, testes os revelam, correção atua apenas nos conhecidos e o lançamento exige desenvolvimento completo + ao menos uma rodada de testes; `CustomerAcquisitionService` cobre aquisição/conversão/churn.
@@ -51,9 +52,9 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` (cliente) — **90/90** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle do produto, bugs ocultos/conhecidos e migração de save V1→V2.
+- [COMPLETED] `Tests.NET` (cliente) — **92/92** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle, calendário de trabalho e migrações de save.
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
-- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **27/27 EditMode + 7/7 PlayMode reais passando** (124 testes reais no cliente com os 90 do `Tests.NET`), rodados via `Unity.exe -batchmode -runTests`. PlayMode agora também percorre o lifecycle pela UI e prova que lançar cedo falha, que concluir desenvolvimento ainda exige teste e que o lançamento correto funciona.
+- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **29/29 EditMode + 8/8 PlayMode reais passando** (129 testes reais no cliente com os 92 do `Tests.NET`), rodados via `Unity.exe -batchmode -runTests`. PlayMode também prova limite diário, rejeição atômica da quinta ação, mensagem de motivo e restauração ao encerrar o dia.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 
@@ -68,6 +69,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 9. Não era bug do jogo, mas do meu próprio teste: `GameObject.Find` não encontra objetos inativos, e o teste de navegação tentava achar o "StatusText" do Office **depois** de já ter trocado para a tela Products (quando o Office já estava com `SetActive(false)`). Corrigido capturando a referência antes de clicar no botão de navegação.
 10. `GameRoot.RunGameCycle` substituía silenciosamente um `PendingEvent` ainda não respondido ao sortear o ciclo seguinte. Corrigido para preservar o evento até `ResolveEvent`, com cobertura PlayMode. O primeiro cenário do teste também revelou uma pré-condição real do catálogo: eventos do Capítulo 1 exigem produto lançado ou cliente pagante; o teste agora prepara esse estado pela API de domínio antes do sorteio.
 11. `DevelopmentService.Launch` aceitava qualquer fase, portanto o jogador podia lançar o primeiro produto imediatamente e pular todo o Capítulo 1. A UI também não oferecia a ação Testar e revelava todos os bugs antes do teste. Corrigido no domínio, UI e save V2, com testes de regressão nas três suítes do cliente.
+12. `WorkCyclesPerDay` existia apenas como número decorativo: todas as ações podiam ser repetidas infinitamente e o ciclo econômico era um botão independente. Corrigido com agenda persistida no save V3, resultados explícitos e consumo atômico validado em PlayMode.
 
 ## 🎉 Primeira compilação real dentro do Unity Editor
 
