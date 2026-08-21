@@ -41,7 +41,8 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Store — 4 itens do Capítulo 1 (boost de dev, boost de aquisição, aporte de caixa instantâneo, cosmético), efeitos sempre visíveis antes da compra, cosméticos não podem ser recomprados
 - [COMPLETED] Ranking/backend — ASP.NET Core + EF Core/Npgsql (`backend/StartupEmpire.Api`), validação server-side real (dados inválidos, rate-limit, crescimento implausível), endpoints `/api/ranking/submit`, `/top`, `/me/{playerId}`; cliente Unity com `NullRankingClient` por padrão (nunca bloqueia a campanha) + `HttpRankingClient` real
 - [COMPLETED] Referrals — código de indicação, vínculo inviter/invitee, recompensa, limite por indicador e prevenção de abuso (auto-indicação e resgate duplicado rejeitados) no backend; cliente credita os Gems localmente só após confirmação do servidor
-- [PENDING] Ad service abstraction (IAdService, seção 22 — não foi pedido ainda nesta sessão)
+- [COMPLETED] Ad service abstraction — `IAdService`/`AdRewardService` (seção 22), `NullAdService` como adapter seguro padrão, recompensa em Gems só concedida quando o anúncio termina com `AdRewardResult.Granted`
+- [COMPLETED] Statistics — `StatisticsService` agrega o `GameState` num `StatisticsSnapshot` (patrimônio, valuation, MRR, usuários, clientes pagantes, funcionários, níveis de upgrade, conquistas, missões, gems, rodadas de investimento, participação de mercado); base pronta para a futura tela e para reaproveitar em outras submissões
 - [PENDING] Audio manager
 - [PENDING] UI final de todas as telas
 - [PENDING] Art polish
@@ -49,7 +50,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` (cliente) — 72 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (4), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5), GemWalletService (4), StoreService (6), RankingClientService (2), ReferralClientService (3).
+- [COMPLETED] `Tests.NET` (cliente) — 82 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (4), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5), GemWalletService (4), StoreService (6), RankingClientService (2), ReferralClientService (3), AdRewardService (5), StatisticsService (5).
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
 - [PENDING] Unity Test Framework (PlayMode/EditMode) — aguarda instalação do Editor. Os mesmos arquivos-fonte já compilam para isso; nenhuma reescrita será necessária.
 
@@ -60,6 +61,14 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 3. `MissionDefinition.RewardGems` existia desde o Capítulo 1 (a missão "MRR" já tinha `rewardGems: 10`), mas `MissionService.EvaluateAll` nunca chegou a conceder gems — só cash. O campo ficava sem efeito silenciosamente. Corrigido ao implementar Gems: `MissionService` agora recebe um `GemWalletService` opcional e concede `RewardGems` junto com `RewardCash`, coberto por um teste novo (`EvaluateAll_GrantsGemReward_WhenMissionHasRewardGems`).
 4. Nos testes de integração do backend, trocar o `AppDbContext` de Npgsql para SQLite via `WebApplicationFactory` falhava com "Only a single database provider can be registered" mesmo removendo o descritor `DbContextOptions<AppDbContext>`. Causa: `AddDbContext` com uma `Action<DbContextOptionsBuilder>` também registra `IDbContextOptionsConfiguration<AppDbContext>`, e a chamada antiga (Npgsql) continuava lá. Corrigido removendo os dois descritores antes de registrar o Sqlite.
 5. O mesmo bug de `.gitignore` que já tinha escondido o `.csproj` de `Tests.NET` (ver item 2 da sessão anterior) estava prestes a se repetir com `backend/**/*.csproj` — pego e corrigido antes do primeiro commit do backend, generalizando a exceção no `.gitignore`.
+
+## Estado do escopo puramente C# (sem depender do Editor)
+
+Com Ads e Statistics, todos os sistemas de domínio da missão que podem ser implementados
+e testados de verdade sem o Unity Editor estão `[COMPLETED]`. Tudo que resta `[PENDING]`
+(Audio manager, UI final de todas as telas, Art polish, Android build/APK/AAB, Balancing
+por playtesting real) genuinely precisa do Editor instalado — não é falta de esforço,
+é uma dependência real de ferramenta. Ver bloqueio na seção 1 acima.
 
 ## Nota sobre veracidade dos resultados
 

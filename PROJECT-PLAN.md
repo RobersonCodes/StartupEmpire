@@ -51,12 +51,12 @@
 [x] 20. Achievements (Hello World, First Customer, MRR, Founder, Unicorn)
 [x] 21. Premium Currency (Gems: saldo, ledger, grant/spend, pronto para Play Billing depois)
 [x] 22. Store (boost de dev, boost de aquisição, aporte instantâneo, cosmético — sem mecânica predatória)
-[ ] 23. Statistics (telas de estatística in-game — fica para a etapa de UI)
+[x] 23. Statistics — StatisticsService agrega o GameState num snapshot legível (telas in-game ficam para a etapa de UI)
 [ ] 24. UI final
 [ ] 25. Audio
 [ ] 26. Art polish
 [ ] 27. Android optimization
-[x] 28. Tests — 72 testes reais do cliente + 22 do backend via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
+[x] 28. Tests — 82 testes reais do cliente + 22 do backend via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
 [ ] 29. Balancing
 [ ] 30. APK/AAB (depende do Editor instalado — ver bloqueio)
 [ ] 31. Documentation
@@ -69,6 +69,9 @@
     validação server-side real, endpoints /api/ranking/submit|top|me. Ver backend/README.md.
 [x] Referrals (seção 24) — código de indicação, vínculo inviter/invitee, recompensa, limite e
     prevenção de abuso, também em backend/StartupEmpire.Api. Cliente Unity com fallback offline-safe.
+[x] IAdService (seção 22 do corpo — não confundir com "22. Store" da lista acima) — abstração
+    de anúncios com NullAdService seguro por padrão, recompensa em Gems só quando o anúncio
+    termina com sucesso de verdade.
 ```
 
 Este documento é atualizado conforme o `PROGRESS.md` avança. Detalhes de design em `GAME-DESIGN-DOCUMENT.md`, decisões técnicas em `ARCHITECTURE.md`.

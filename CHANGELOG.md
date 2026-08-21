@@ -64,6 +64,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - API rodada de verdade (`dotnet run`, `ASPNETCORE_ENVIRONMENT=Development`) e testada via `curl` ponta a ponta: submissão de ranking, top/rank, geração de código de indicação, resgate com sucesso e rejeição correta de um segundo resgate pelo mesmo convidado — tudo confirmado também via `psql` direto nas tabelas, não só pela resposta HTTP.
 - Isso resolve a limitação anterior ("backend não testado contra Postgres real") registrada nesta mesma sessão.
 
+### Added (continuação — Ads, Statistics)
+- `Ads`: `IAdService`/`AdRewardService` (seção 22) — `NullAdService` como adapter seguro padrão (nunca trava, nunca finge sucesso); Gems só creditados quando `AdRewardResult.Granted` é retornado. `GameRoot.WatchRewardedAd` já pronto pra ligar num SDK real depois, sem tocar no resto do domínio.
+- `Statistics`: `StatisticsService.BuildSnapshot` agrega o `GameState` inteiro num `StatisticsSnapshot` (patrimônio, valuation, MRR, equity do fundador, usuários/clientes agregados, produtos lançados, funcionários, níveis de upgrade comprados, conquistas, missões, gems, rodadas de investimento captadas, participação de mercado). Sem estado próprio — sempre recalculado a partir da fonte de verdade.
+- 10 novos testes reais (`AdRewardServiceTests`, `StatisticsServiceTests`) — suíte total do cliente: 82/82 passando.
+- Com isso, todo o escopo de domínio da missão que não depende do Unity Editor está implementado e testado.
+
 ### Known limitations
 - Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
