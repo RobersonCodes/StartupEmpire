@@ -1,12 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+using StartupEmpire.Api.Data;
+using StartupEmpire.Api.Data.Repositories;
+using StartupEmpire.Api.Domain.Common;
+using StartupEmpire.Api.Domain.Ranking;
+using StartupEmpire.Api.Domain.Referrals;
+using StartupEmpire.Api.Endpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// A connection string real (com usuário/senha) nunca fica hardcoded aqui — vem de
+// appsettings.Development.json (gitignored), variável de ambiente ConnectionStrings__Default,
+// ou `dotnet user-secrets`. O fallback abaixo só existe para o projeto não quebrar ao abrir
+// sem configuração nenhuma; ele aponta para um banco/usuário que não existe por padrão.
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? "Host=localhost;Port=5432;Database=startup_empire;Username=startup_empire;Password=CHANGE_ME";
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddSingleton(new RankingConfigValues());
+builder.Services.AddSingleton(new ReferralConfigValues());
+builder.Services.AddScoped<IRankingRepository, EfRankingRepository>();
+builder.Services.AddScoped<IReferralRepository, EfReferralRepository>();
+builder.Services.AddScoped<RankingService>();
+builder.Services.AddScoped<ReferralService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -14,28 +36,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapRankingEndpoints();
+app.MapReferralEndpoints();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// Exposto para WebApplicationFactory<Program> nos testes de integração.
+public partial class Program
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
