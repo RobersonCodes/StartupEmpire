@@ -1,0 +1,67 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Uu]ser[Ss]ettings/
+[Rr]ecordings/
+
+# Unity3D generated meta files that only make sense with matching assets
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Asset meta data should only be ignored when the corresponding asset is also ignored
+!/[Aa]ssets/**/*.meta
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Gradle / Android build artifacts
+*.androidlib/
+android_export/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# .NET
+bin/
+obj/
+*.user
+
+# Crashlytics
+crashlytics-build.properties
+
+# Backend secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+*.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Addressables
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/AssetGroupAssets/*
