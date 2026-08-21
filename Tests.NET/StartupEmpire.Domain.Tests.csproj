@@ -103,6 +103,12 @@
     <Compile Include="..\Assets\Game\Referrals\NullReferralClient.cs" Link="Domain\Referrals\NullReferralClient.cs" />
     <Compile Include="..\Assets\Game\Referrals\ReferralClientService.cs" Link="Domain\Referrals\ReferralClientService.cs" />
 
+    <Compile Include="..\Assets\Game\Ads\AdRewardResult.cs" Link="Domain\Ads\AdRewardResult.cs" />
+    <Compile Include="..\Assets\Game\Ads\IAdService.cs" Link="Domain\Ads\IAdService.cs" />
+    <Compile Include="..\Assets\Game\Ads\NullAdService.cs" Link="Domain\Ads\NullAdService.cs" />
+    <Compile Include="..\Assets\Game\Ads\AdConfigValues.cs" Link="Domain\Ads\AdConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Ads\AdRewardService.cs" Link="Domain\Ads\AdRewardService.cs" />
+
     <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />

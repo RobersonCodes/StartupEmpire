@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using StartupEmpire.Achievements;
+using StartupEmpire.Ads;
 using StartupEmpire.Competitors;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
@@ -48,6 +49,7 @@ namespace StartupEmpire.Core
         public InvestmentService Investment { get; private set; }
         public GemWalletService Gems { get; private set; }
         public StoreService Store { get; private set; }
+        public AdRewardService Ads { get; private set; }
         public RankingClientService Ranking { get; private set; }
         public ReferralClientService Referrals { get; private set; }
 
@@ -84,6 +86,9 @@ namespace StartupEmpire.Core
             CustomerAcquisition = new CustomerAcquisitionService(new CustomerAcquisitionConfigValues(), EventBus);
             Progression = new ProgressionService(EventBus);
             Gems = new GemWalletService(clock, EventBus);
+            // NullAdService por padrão: nenhum SDK de anúncio real integrado ainda.
+            // Trocar por uma implementação real de IAdService aqui quando um SDK for adicionado.
+            Ads = new AdRewardService(new NullAdService(), Gems, new AdConfigValues(), EventBus);
             Missions = new MissionService(Chapter1Missions.Create(), EventBus, Economy, Gems);
             Achievements = new AchievementService(AchievementCatalog.Create(), EventBus);
             Learning = new LearningService(new LearningConfigValues());
@@ -223,6 +228,9 @@ namespace StartupEmpire.Core
             var item = Store.Find(storeItemId);
             return item != null && Store.TryPurchase(State, item);
         }
+
+        public void WatchRewardedAd(System.Action<AdRewardResult> onComplete) =>
+            Ads.RequestRewardedGems(State.GemWallet, onComplete);
 
         /// Nunca lança e nunca bloqueia o jogo se o backend estiver fora do ar
         /// (RankingClientService já engole falhas de rede internamente).

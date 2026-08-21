@@ -185,4 +185,10 @@ namespace StartupEmpire.Core
         public readonly string ItemId;
         public StoreItemPurchasedEvent(string itemId) => ItemId = itemId;
     }
+
+    public readonly struct RewardedAdCompletedEvent
+    {
+        public readonly int GemsGranted;
+        public RewardedAdCompletedEvent(int gemsGranted) => GemsGranted = gemsGranted;
+    }
 }
