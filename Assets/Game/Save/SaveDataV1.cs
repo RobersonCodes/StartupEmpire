@@ -16,8 +16,30 @@ namespace StartupEmpire.Save
         public List<ProductSaveEntry> Products = new();
         public List<string> CompletedMissionIds = new();
         public List<string> UnlockedAchievementIds = new();
+        public List<UpgradeLevelEntry> UpgradeLevels = new();
+        public List<EmployeeSaveEntry> Employees = new();
         public string CompanyStage = "PessoaFisica";
         public string LastSavedUtcIso;
+    }
+
+    [Serializable]
+    public sealed class UpgradeLevelEntry
+    {
+        public string UpgradeId;
+        public int Level;
+    }
+
+    [Serializable]
+    public sealed class EmployeeSaveEntry
+    {
+        public string InstanceId;
+        public string DefinitionId;
+        public double Experience;
+        public double Productivity;
+        public double Quality;
+        public double Speed;
+        public double Specialization;
+        public double Satisfaction;
     }
 
     [Serializable]

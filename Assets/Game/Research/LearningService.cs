@@ -13,10 +13,12 @@ namespace StartupEmpire.Research
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        public void Study(PlayerState player, string track, int cycles)
+        /// knowledgeMultiplier vem de Upgrades (ex.: cursos online aceleram o aprendizado).
+        public void Study(PlayerState player, string track, int cycles, double knowledgeMultiplier = 1.0)
         {
             if (cycles <= 0) return;
-            player.AddKnowledge(track, _config.KnowledgePointsPerCycle * cycles);
+            var amount = (int)Math.Round(_config.KnowledgePointsPerCycle * cycles * knowledgeMultiplier);
+            player.AddKnowledge(track, amount);
         }
     }
 }

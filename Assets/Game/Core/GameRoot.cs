@@ -1,12 +1,15 @@
 using UnityEngine;
 using StartupEmpire.Achievements;
 using StartupEmpire.Economy;
+using StartupEmpire.Employees;
+using StartupEmpire.Events;
 using StartupEmpire.Idle;
 using StartupEmpire.Missions;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 using StartupEmpire.Research;
 using StartupEmpire.Save;
+using StartupEmpire.Upgrades;
 
 namespace StartupEmpire.Core
 {
@@ -29,6 +32,10 @@ namespace StartupEmpire.Core
         public IdleService Idle { get; private set; }
         public SaveService Save { get; private set; }
         public ProductDefinitionCatalog Catalog { get; private set; }
+        public UpgradeService Upgrades { get; private set; }
+        public HiringService Hiring { get; private set; }
+        public EventService Events { get; private set; }
+        public EmployeeDefinitionCatalog EmployeeCatalog { get; private set; }
 
         private EconomyConfigValues _economyConfig;
         private float _autosaveTimer;
@@ -62,9 +69,13 @@ namespace StartupEmpire.Core
             Achievements = new AchievementService(AchievementCatalog.Create(), EventBus);
             Learning = new LearningService(new LearningConfigValues());
             Idle = new IdleService(new OfflineProgressCalculator(_economyConfig), clock, EventBus);
+            Upgrades = new UpgradeService(UpgradeCatalog.CreateChapter1Catalog(), Economy, EventBus);
+            EmployeeCatalog = EmployeeDefinitionCatalog.CreateDefaultCatalog();
+            Hiring = new HiringService(new HiringConfigValues(), Economy, EventBus);
+            Events = new EventService(EventCatalog.CreateChapter1Catalog(), new EventConfigValues(), Economy, EventBus);
 
             var storage = new FileSaveStorage();
-            Save = new SaveService(storage, clock, Catalog);
+            Save = new SaveService(storage, clock, Catalog, EmployeeCatalog);
             State = Save.Load(_economyConfig.StartingCash);
 
             if (State.Products.Count == 0)
@@ -90,18 +101,66 @@ namespace StartupEmpire.Core
             }
         }
 
-        /// Avança um ciclo de simulação (aquisição de clientes, receita, progressão, missões).
+        /// Avança um ciclo de simulação (aquisição de clientes, receita, folha de
+        /// pagamento, progressão, missões e um possível evento aleatório).
         public void RunGameCycle(int cycles = 1)
         {
+            var acquisitionMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.AcquisitionRateMultiplier, State.Upgrades)
+                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Marketing);
+
             foreach (var product in State.Products)
             {
-                CustomerAcquisition.RunCycle(product, Economy, State.Economy, cycles);
+                CustomerAcquisition.RunCycle(product, Economy, State.Economy, cycles, acquisitionMultiplier);
             }
             Economy.RecomputeRecurringRevenue(State.Economy, State.Products);
             Economy.RecomputeValuation(State.Economy);
+
+            Hiring.PaySalaries(State.Employees, State.Economy);
+
             Progression.TryAdvance(State);
             Missions.EvaluateAll(State);
             Achievements.EvaluateAll(State);
+
+            PendingEvent = Events.TryTriggerRandomEvent(State);
+        }
+
+        /// Evento aleatório disparado no último RunGameCycle, aguardando a UI
+        /// chamar ResolveEvent com a escolha do jogador (null se nenhum disparou).
+        public GameEventDefinition PendingEvent { get; private set; }
+
+        public void ResolveEvent(string choiceId)
+        {
+            if (PendingEvent == null) return;
+            Events.ResolveChoice(State, PendingEvent, choiceId);
+            PendingEvent = null;
+        }
+
+        public void DevelopProduct(ProductState product, string knowledgeTrack, int cycles)
+        {
+            var devSpeedMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.DevSpeedMultiplier, State.Upgrades)
+                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Backend)
+                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Frontend);
+            var bugRateMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.BugRateReduction, State.Upgrades);
+            Development.Develop(product, State.Player, knowledgeTrack, cycles, devSpeedMultiplier, bugRateMultiplier);
+        }
+
+        public void StudyTrack(string track, int cycles)
+        {
+            var knowledgeMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.KnowledgeGainMultiplier, State.Upgrades);
+            Learning.Study(State.Player, track, cycles, knowledgeMultiplier);
+        }
+
+        public bool PurchaseUpgrade(string upgradeId)
+        {
+            var definition = Upgrades.Find(upgradeId);
+            return definition != null && Upgrades.TryPurchase(definition, State.Upgrades, State.Economy);
+        }
+
+        public bool HireEmployee(string employeeDefinitionId)
+        {
+            var definition = EmployeeCatalog.Find(employeeDefinitionId);
+            if (definition == null) return false;
+            return Hiring.TryHire(State.Employees, State.Economy, definition) != null;
         }
 
         private void OnApplicationPause(bool pauseStatus)

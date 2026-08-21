@@ -18,6 +18,8 @@ namespace StartupEmpire.Save
             data.Knowledge ??= new List<KnowledgeEntry>();
             data.CompletedMissionIds ??= new List<string>();
             data.UnlockedAchievementIds ??= new List<string>();
+            data.UpgradeLevels ??= new List<UpgradeLevelEntry>();
+            data.Employees ??= new List<EmployeeSaveEntry>();
 
             return data;
         }

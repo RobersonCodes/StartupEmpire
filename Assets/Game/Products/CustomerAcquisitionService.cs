@@ -16,12 +16,15 @@ namespace StartupEmpire.Products
             _eventBus = eventBus;
         }
 
-        public void RunCycle(ProductState product, EconomyEngine economy, EconomyState economyState, int cycles)
+        /// acquisitionMultiplier vem de Upgrades/Employees (ex.: internet melhor, funcionário de marketing).
+        public void RunCycle(ProductState product, EconomyEngine economy, EconomyState economyState, int cycles,
+            double acquisitionMultiplier = 1.0)
         {
             if (cycles <= 0) return;
             if (product.Stage != ProductStage.Launched && product.Stage != ProductStage.Maintenance) return;
 
-            var newUsers = (int)Math.Round(_config.BaseAcquisitionRate * product.Reputation * product.Quality * cycles);
+            var newUsers = (int)Math.Round(
+                _config.BaseAcquisitionRate * product.Reputation * product.Quality * acquisitionMultiplier * cycles);
             product.Users += newUsers;
 
             var newPaying = (int)Math.Round(newUsers * _config.ConversionRateToPaying);

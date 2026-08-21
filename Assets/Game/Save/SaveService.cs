@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using StartupEmpire.Core;
 using StartupEmpire.Economy;
+using StartupEmpire.Employees;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 
@@ -10,18 +11,21 @@ namespace StartupEmpire.Save
     /// Converte GameState <-> SaveDataV1 e orquestra leitura/escrita via ISaveStorage.
     /// Nunca perde o progresso inteiro por um save corrompido ou campo ausente:
     /// falhas de parsing caem em um novo jogo em vez de derrubar a aplicação, e
-    /// produtos cuja definição não existe mais são ignorados com segurança.
+    /// produtos/funcionários cuja definição não existe mais são ignorados com segurança.
     public sealed class SaveService
     {
         private readonly ISaveStorage _storage;
         private readonly IClock _clock;
-        private readonly ProductDefinitionCatalog _catalog;
+        private readonly ProductDefinitionCatalog _productCatalog;
+        private readonly EmployeeDefinitionCatalog _employeeCatalog;
 
-        public SaveService(ISaveStorage storage, IClock clock, ProductDefinitionCatalog catalog)
+        public SaveService(ISaveStorage storage, IClock clock, ProductDefinitionCatalog productCatalog,
+            EmployeeDefinitionCatalog employeeCatalog)
         {
             _storage = storage ?? throw new ArgumentNullException(nameof(storage));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+            _productCatalog = productCatalog ?? throw new ArgumentNullException(nameof(productCatalog));
+            _employeeCatalog = employeeCatalog ?? throw new ArgumentNullException(nameof(employeeCatalog));
         }
 
         public void Save(GameState state)
@@ -65,6 +69,26 @@ namespace StartupEmpire.Save
 
             foreach (var id in state.Missions.CompletedMissionIds) data.CompletedMissionIds.Add(id);
             foreach (var id in state.UnlockedAchievements) data.UnlockedAchievementIds.Add(id);
+
+            foreach (var kv in state.Upgrades.LevelByUpgradeId)
+            {
+                data.UpgradeLevels.Add(new UpgradeLevelEntry { UpgradeId = kv.Key, Level = kv.Value });
+            }
+
+            foreach (var employee in state.Employees.Employees)
+            {
+                data.Employees.Add(new EmployeeSaveEntry
+                {
+                    InstanceId = employee.InstanceId,
+                    DefinitionId = employee.Definition.Id,
+                    Experience = employee.Experience,
+                    Productivity = employee.Productivity,
+                    Quality = employee.Quality,
+                    Speed = employee.Speed,
+                    Specialization = employee.Specialization,
+                    Satisfaction = employee.Satisfaction
+                });
+            }
 
             _storage.WriteRaw(SaveSerializer.Serialize(data));
         }
@@ -111,7 +135,7 @@ namespace StartupEmpire.Save
 
             foreach (var entry in data.Products)
             {
-                var definition = _catalog.Find(entry.DefinitionId);
+                var definition = _productCatalog.Find(entry.DefinitionId);
                 if (definition == null) continue;
 
                 var product = new ProductState(definition)
@@ -136,6 +160,25 @@ namespace StartupEmpire.Save
 
             foreach (var id in data.CompletedMissionIds) state.Missions.CompletedMissionIds.Add(id);
             foreach (var id in data.UnlockedAchievementIds) state.UnlockedAchievements.Add(id);
+
+            foreach (var entry in data.UpgradeLevels) state.Upgrades.SetLevel(entry.UpgradeId, entry.Level);
+
+            foreach (var entry in data.Employees)
+            {
+                var definition = _employeeCatalog.Find(entry.DefinitionId);
+                if (definition == null) continue;
+
+                var employee = new Employee(entry.InstanceId, definition)
+                {
+                    Experience = entry.Experience,
+                    Productivity = entry.Productivity,
+                    Quality = entry.Quality,
+                    Speed = entry.Speed,
+                    Specialization = entry.Specialization,
+                    Satisfaction = entry.Satisfaction
+                };
+                state.Employees.Employees.Add(employee);
+            }
 
             return state;
         }

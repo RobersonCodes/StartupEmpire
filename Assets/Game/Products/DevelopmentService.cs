@@ -24,19 +24,24 @@ namespace StartupEmpire.Products
             _eventBus = eventBus;
         }
 
-        public void Develop(ProductState product, PlayerState player, string knowledgeTrack, int cycles)
+        /// devSpeedMultiplier e bugRateMultiplier vêm de Upgrades/Employees (ex.: computador
+        /// melhor acelera o dev, ferramentas de produtividade reduzem a taxa de bugs).
+        /// Ambos default para 1.0 (sem bônus) para não acoplar DevelopmentService a essas camadas.
+        public void Develop(ProductState product, PlayerState player, string knowledgeTrack, int cycles,
+            double devSpeedMultiplier = 1.0, double bugRateMultiplier = 1.0)
         {
             if (cycles <= 0) return;
             if (product.Stage == ProductStage.Planning) product.Stage = ProductStage.Development;
             if (product.Stage != ProductStage.Development) return;
 
             var knowledge = player.GetKnowledge(knowledgeTrack);
-            var speedMultiplier = 1.0 + knowledge * _config.KnowledgeBonusPerPoint;
+            var speedMultiplier = (1.0 + knowledge * _config.KnowledgeBonusPerPoint) * devSpeedMultiplier;
             var progressGained = _config.DevPointsPerCycle * speedMultiplier * cycles;
             product.DevProgress += progressGained;
 
             var qualityFactor = Math.Clamp(0.3 + knowledge * 0.01, 0.3, 0.95);
-            var bugsIntroduced = (int)Math.Round(progressGained * product.Definition.BugRatePerProgress * (1 - qualityFactor));
+            var bugsIntroduced = (int)Math.Round(
+                progressGained * product.Definition.BugRatePerProgress * bugRateMultiplier * (1 - qualityFactor));
             if (bugsIntroduced > 0)
             {
                 product.BugCount += bugsIntroduced;
