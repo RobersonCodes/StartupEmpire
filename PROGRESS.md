@@ -25,7 +25,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Estrutura de pastas `Assets/Game/**`
 - [COMPLETED] GameState / IClock / SystemClock / EventBus / GameRoot (composition root)
 - [COMPLETED] Economy Engine + EconomyConfigValues (ledger, cash flow, MRR, valuation)
-- [COMPLETED] Save System versionado (schema V3, migrações V1→V2→V3, recuperação de save corrompido, autosave)
+- [COMPLETED] Save System versionado (schema V4, migrações V1→V2→V3→V4, recuperação de save corrompido, autosave e tutorial persistido)
 - [COMPLETED] Calendário de trabalho — dia atual + 4 ciclos limitados por dia; estudar/desenvolver/testar/corrigir consomem tempo atomicamente, falhas não consomem nem alteram estado, e Encerrar Dia executa um ciclo econômico e restaura o tempo.
 - [COMPLETED] Idle / Offline progress (teto de horas, cálculo em lote, bugs por instabilidade)
 - [COMPLETED] Capítulo 1 (fluxo completo: aprender → dev → testar → bugs → corrigir → lançar → 1º cliente → MRR → transição de estágio)
@@ -46,16 +46,17 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Ad service abstraction — `IAdService`/`AdRewardService` (seção 22), `NullAdService` como adapter seguro padrão, recompensa em Gems só concedida quando o anúncio termina com `AdRewardResult.Granted`
 - [COMPLETED] Statistics — `StatisticsService` agrega o `GameState` num `StatisticsSnapshot` (patrimônio, valuation, MRR, usuários, clientes pagantes, funcionários, níveis de upgrade, conquistas, missões, gems, rodadas de investimento, participação de mercado); base pronta para a futura tela e para reaproveitar em outras submissões
 - [COMPLETED] Audio manager — `AudioManager`/`AudioMixState`, volume independente por categoria (música/UI/ambiente/eventos/conquistas). Sem clipes ainda (este agente não tem como gerar áudio original ou licenciado — seção 28 exige isso); sistema pronto para receber os clipes quando existirem.
-- [IN PROGRESS] UI final de todas as telas — 14 de 19 experiências do GDD implementadas. A navegação portrait agora usa cinco alvos principais grandes (`Início`, `Produtos`, `Equipe`, `Empresa`, `Mais`) e grade secundária para nove destinos, com Voltar fechando o menu/retornando ao Início. Faltam: Splash, Main Menu, New Game, Continue e uma tela dedicada de Development; o loop de desenvolvimento já funciona no Office.
+- [IN PROGRESS] UI final — Splash, Main Menu, New Game e Continue estão implementados, incluindo confirmação antes de substituir um save. A campanha possui 13 telas internas, navegação portrait com cinco alvos principais e grade `Mais` para nove destinos. Falta uma tela dedicada de Development (o loop completo já funciona no Office) e polish visual das telas internas.
+- [COMPLETED] Tutorial contextual do Capítulo 1 — guia persistido e sem paredes de texto para estudar → desenvolver → testar → corrigir → lançar → conquistar cliente; a ação recomendada recebe destaque visual e o tutorial antigo migra com segurança no save V4.
 - [IN PROGRESS] Art polish — ícone original do app criado e integrado (`Assets/Game/Art/StartupEmpireAppIcon.png`); UI interna ainda usa retângulos/texto placeholder e precisa de direção visual completa.
 - [IN PROGRESS] Android optimization — portrait travado, `renderOutsideSafeArea=false`, `SafeAreaFitter` responsivo a notch/barra de gestos e navegação com alvos largos; ainda faltam smoke test em aparelho, matriz visual de resoluções e medição de desempenho.
-- [COMPLETED] Android build (APK/AAB) — **APK atual real gerado e confirmado**: `Builds/Android/StartupEmpire-debug.apk`, 45.610.490 bytes, SHA-256 `6D6373E0679613059F9BA445D0305BBED08E9B47C541C61BAE39FA131B013D6F`, `result=Succeeded totalErrors=0 totalWarnings=0`. `aapt2 dump xmltree` confirmou `screenOrientation=1` (portrait). AAB ainda não foi gerado e o APK ainda não foi instalado/testado em aparelho ou emulador online.
+- [COMPLETED] Android build (APK) — **APK atual real gerado e confirmado**: `Builds/Android/StartupEmpire-debug.apk`, 45.617.747 bytes, SHA-256 `8115D0D358499C72C495A4944E806ED5FA200BBEC3C35C71F1A331C0A1C90AB3`, `result=Succeeded totalErrors=0 totalWarnings=0`. `aapt2` confirmou package `com.startupempire.game`, minSdk 23, targetSdk 36 e `screenOrientation=1` (portrait). AAB ainda não foi gerado e o APK ainda não foi executado porque `emulator-5554` permanece offline.
 
 ## Testes
 
 - [COMPLETED] `Tests.NET` (cliente) — **92/92** testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas), incluindo lifecycle, calendário de trabalho e migrações de save.
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
-- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **31/31 EditMode + 8/8 PlayMode reais passando** (131 testes reais no cliente com os 92 do `Tests.NET`). Safe area tem testes determinísticos para notch/gestos; PlayMode confirma cinco botões principais com largura mínima de 19% e acesso às telas secundárias pelo Mais.
+- [COMPLETED] Unity Test Framework (EditMode + PlayMode) — **32/32 EditMode + 9/9 PlayMode reais passando** (133 testes reais no cliente com os 92 do `Tests.NET`). A cobertura inclui save V4, onboarding, safe area, alvos de toque, navegação, lifecycle e modal de eventos. Testes batch usam storage em memória e não leem/escrevem o save real do jogador.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 

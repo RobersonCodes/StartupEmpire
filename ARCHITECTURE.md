@@ -75,7 +75,9 @@ StartupEmpire/
 
 - `SaveDataV1` (e futuras `SaveDataV2`, ...) são DTOs simples e versionados (`int SchemaVersion`).
 - `ISaveStorage` abstrai onde o save vive (`PlayerPrefs`/arquivo local hoje; cloud no futuro).
-- `SaveMigrator` aplica migrações em cadeia (`V1→V2→V3`) para nunca perder progresso quando um campo novo é adicionado.
+- `SaveMigrator` aplica migrações em cadeia (`V1→V2→V3→V4`) para nunca perder progresso quando um campo novo é adicionado; V4 persiste o tutorial contextual.
+- `StartupFlowBuilder` mantém Splash/Menu acima do shell e só libera a campanha por Continue ou New Game. Novo jogo apaga o save apenas após confirmação quando já existe progresso.
+- Em `Application.isBatchMode`, o composition root usa `InMemorySaveStorage`; automação de PlayMode nunca toca no arquivo real do jogador.
 - Autosave a cada N ciclos de jogo e em pontos de transição de tela; save manual disponível.
 - Falha de leitura (JSON corrompido, campo ausente) cai em valores padrão por campo, nunca aborta o load inteiro.
 

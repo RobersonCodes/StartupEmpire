@@ -11,6 +11,12 @@ namespace StartupEmpire.UI.Screens
     public sealed class OfficeScreenPanel : IScreenPanel
     {
         private Text _statusText;
+        private Button _studyButton;
+        private Button _developButton;
+        private Button _testButton;
+        private Button _fixButton;
+        private Button _launchButton;
+        private Button _endDayButton;
         private string _lastActionMessage = "Escolha como usar seu tempo hoje.";
 
         public void Build(Transform contentParent, ScreenManager screenManager)
@@ -20,12 +26,12 @@ namespace StartupEmpire.UI.Screens
             _statusText = UiFactory.CreateText(root.transform, "", 30, TextAnchor.UpperLeft,
                 new Vector2(0.03f, 0.50f), new Vector2(0.97f, 0.97f), "StatusText");
 
-            UiFactory.CreateButton(root.transform, "Estudar Fundamentos", new Vector2(0.03f, 0.42f), new Vector2(0.97f, 0.48f), OnStudy);
-            UiFactory.CreateButton(root.transform, "Desenvolver Produto", new Vector2(0.03f, 0.34f), new Vector2(0.97f, 0.40f), OnDevelop);
-            UiFactory.CreateButton(root.transform, "Testar Produto", new Vector2(0.03f, 0.26f), new Vector2(0.97f, 0.32f), OnTest);
-            UiFactory.CreateButton(root.transform, "Corrigir Bugs", new Vector2(0.03f, 0.18f), new Vector2(0.97f, 0.24f), OnFixBugs);
-            UiFactory.CreateButton(root.transform, "Lançar Produto", new Vector2(0.03f, 0.10f), new Vector2(0.97f, 0.16f), OnLaunch);
-            UiFactory.CreateButton(root.transform, "Encerrar Dia", new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.08f), OnEndDay);
+            _studyButton = UiFactory.CreateButton(root.transform, "Estudar Fundamentos", new Vector2(0.03f, 0.42f), new Vector2(0.97f, 0.48f), OnStudy);
+            _developButton = UiFactory.CreateButton(root.transform, "Desenvolver Produto", new Vector2(0.03f, 0.34f), new Vector2(0.97f, 0.40f), OnDevelop);
+            _testButton = UiFactory.CreateButton(root.transform, "Testar Produto", new Vector2(0.03f, 0.26f), new Vector2(0.97f, 0.32f), OnTest);
+            _fixButton = UiFactory.CreateButton(root.transform, "Corrigir Bugs", new Vector2(0.03f, 0.18f), new Vector2(0.97f, 0.24f), OnFixBugs);
+            _launchButton = UiFactory.CreateButton(root.transform, "Lançar Produto", new Vector2(0.03f, 0.10f), new Vector2(0.97f, 0.16f), OnLaunch);
+            _endDayButton = UiFactory.CreateButton(root.transform, "Encerrar Dia", new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.08f), OnEndDay);
 
             screenManager.Register("Office", root);
         }
@@ -97,7 +103,8 @@ namespace StartupEmpire.UI.Screens
                 $"MRR: R$ {state.Economy.MonthlyRecurringRevenue:F2}\n" +
                 $"Gems: {state.GemWallet.Balance}\n" +
                 $"Estágio: {state.Stage}\n" +
-                $"{_lastActionMessage}";
+                $"{_lastActionMessage}\n" +
+                $"{TutorialGuidance.MessageFor(state.TutorialProgress)}";
 
             if (product != null)
             {
@@ -111,6 +118,37 @@ namespace StartupEmpire.UI.Screens
             }
 
             _statusText.text = text;
+            UpdateTutorialHighlight(state.TutorialProgress);
+        }
+
+        private void UpdateTutorialHighlight(TutorialStep step)
+        {
+            var recommended = step switch
+            {
+                TutorialStep.LearnFundamentals => _studyButton,
+                TutorialStep.DevelopProduct => _developButton,
+                TutorialStep.TestProduct => _testButton,
+                TutorialStep.FixKnownBugs => _fixButton,
+                TutorialStep.LaunchProduct => _launchButton,
+                TutorialStep.AcquireFirstCustomer => _endDayButton,
+                _ => null
+            };
+
+            ResetButtonColor(_studyButton);
+            ResetButtonColor(_developButton);
+            ResetButtonColor(_testButton);
+            ResetButtonColor(_fixButton);
+            ResetButtonColor(_launchButton);
+            ResetButtonColor(_endDayButton);
+            if (recommended != null)
+            {
+                recommended.GetComponent<Image>().color = new Color(0.93f, 0.58f, 0.12f, 1f);
+            }
+        }
+
+        private static void ResetButtonColor(Button button)
+        {
+            if (button != null) button.GetComponent<Image>().color = UiFactory.ButtonColor;
         }
     }
 }

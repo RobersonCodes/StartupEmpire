@@ -5,6 +5,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ## [Unreleased]
 
 ### Added
+- Fluxo inicial jogável com Splash, Main Menu, Continue e New Game; a substituição de um save existente exige confirmação explícita.
+- Tutorial contextual persistido do Capítulo 1, com destaque da próxima ação e progressão pelas etapas aprender, desenvolver, testar, corrigir, lançar e conquistar o primeiro cliente.
+- Save schema V4 com migração segura do tutorial; campanhas antigas com produto lançado são marcadas como onboarding concluído.
+- Testes Unity em batch agora usam `InMemorySaveStorage`, impedindo que automação de PlayMode leia ou altere o save local real.
 - Estrutura inicial do repositório e documentação (`PROJECT-PLAN.md`, `GAME-DESIGN-DOCUMENT.md`, `ARCHITECTURE.md`, `PROGRESS.md`).
 - Esqueleto de projeto Unity (`ProjectSettings/`, `Packages/manifest.json`) pronto para abrir no Editor quando instalado.
 - Domínio puro (sem `UnityEngine`) para: `Core` (GameState, EventBus, PlayerState, IClock), `Economy` (EconomyEngine, ledger, MRR, valuation), `Products` (ciclo de vida, dev/test/fix/launch, aquisição de clientes/churn), `Progression` (gates de estágio de empresa), `Research` (trilhas de conhecimento + LearningService), `Missions` (sistema genérico + missões do Capítulo 1), `Achievements` (Hello World, First Customer, MRR, Founder, Unicorn), `Idle` (progresso offline com teto de horas), `Save` (save versionado, migração, recuperação de corrupção).

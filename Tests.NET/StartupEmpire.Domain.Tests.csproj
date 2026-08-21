@@ -25,6 +25,7 @@
     <Compile Include="..\Assets\Game\Core\GameEvents.cs" Link="Domain\Core\GameEvents.cs" />
     <Compile Include="..\Assets\Game\Core\PlayerState.cs" Link="Domain\Core\PlayerState.cs" />
     <Compile Include="..\Assets\Game\Core\GameState.cs" Link="Domain\Core\GameState.cs" />
+    <Compile Include="..\Assets\Game\Core\TutorialStep.cs" Link="Domain\Core\TutorialStep.cs" />
 
     <Compile Include="..\Assets\Game\Economy\EconomyConfigValues.cs" Link="Domain\Economy\EconomyConfigValues.cs" />
     <Compile Include="..\Assets\Game\Economy\LedgerEntry.cs" Link="Domain\Economy\LedgerEntry.cs" />

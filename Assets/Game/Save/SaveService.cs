@@ -34,6 +34,14 @@ namespace StartupEmpire.Save
             _competitorCatalog = competitorCatalog ?? throw new ArgumentNullException(nameof(competitorCatalog));
         }
 
+        public bool HasSave => _storage.Exists();
+
+        public GameState DeleteSaveAndCreateNew(double startingCash)
+        {
+            _storage.Delete();
+            return CreateNewGame(startingCash);
+        }
+
         public void Save(GameState state)
         {
             var data = new SaveDataV1
@@ -44,6 +52,7 @@ namespace StartupEmpire.Save
                 WorkCyclesPerDay = state.Player.WorkCyclesPerDay,
                 CurrentDay = state.Player.CurrentDay,
                 RemainingWorkCycles = state.Player.RemainingWorkCycles,
+                TutorialStep = state.TutorialProgress.ToString(),
                 Cash = state.Economy.Cash,
                 MonthlyRecurringRevenue = state.Economy.MonthlyRecurringRevenue,
                 Valuation = state.Economy.Valuation,
@@ -176,6 +185,9 @@ namespace StartupEmpire.Save
                     ? parsed
                     : _clock.UtcNow
             };
+
+            if (Enum.TryParse<TutorialStep>(data.TutorialStep, out var tutorialStep))
+                state.TutorialProgress = tutorialStep;
 
             if (Enum.TryParse<CompanyStage>(data.CompanyStage, out var stage)) state.Stage = stage;
 

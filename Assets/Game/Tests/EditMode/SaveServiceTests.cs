@@ -27,7 +27,11 @@ namespace StartupEmpire.Tests.EditMode
             player.AddKnowledge(KnowledgeTracks.Fundamentos, 42);
             player.TryConsumeWorkCycles(2);
             var economy = new EconomyState(1234.5) { MonthlyRecurringRevenue = 99, Valuation = 5000 };
-            var state = new GameState(player, economy) { Stage = CompanyStage.Freelancer };
+            var state = new GameState(player, economy)
+            {
+                Stage = CompanyStage.Freelancer,
+                TutorialProgress = TutorialStep.DevelopProduct
+            };
             var def = catalog.Find("first_website");
             var product = new ProductState(def)
             {
@@ -50,6 +54,7 @@ namespace StartupEmpire.Tests.EditMode
             Assert.AreEqual(2, loaded.Player.RemainingWorkCycles);
             Assert.AreEqual(1234.5, loaded.Economy.Cash);
             Assert.AreEqual(CompanyStage.Freelancer, loaded.Stage);
+            Assert.AreEqual(TutorialStep.DevelopProduct, loaded.TutorialProgress);
             Assert.AreEqual(1, loaded.Products.Count);
             Assert.AreEqual(ProductStage.Launched, loaded.Products[0].Stage);
             Assert.AreEqual(7, loaded.Products[0].PayingCustomers);
@@ -110,6 +115,29 @@ namespace StartupEmpire.Tests.EditMode
             Assert.IsTrue(loaded.Products[0].HasBeenTested);
             Assert.AreEqual(1, loaded.Player.CurrentDay);
             Assert.AreEqual(4, loaded.Player.RemainingWorkCycles);
+            Assert.AreEqual(TutorialStep.LearnFundamentals, loaded.TutorialProgress);
+        }
+
+        [Test]
+        public void Load_MigratesLaunchedLegacySave_ToCompletedTutorial()
+        {
+            var storage = new InMemorySaveStorage();
+            var legacy = new SaveDataV1 { SchemaVersion = 3, Cash = 500 };
+            legacy.Products.Add(new ProductSaveEntry
+            {
+                DefinitionId = "first_website",
+                Stage = ProductStage.Launched.ToString(),
+                HasBeenTested = true
+            });
+            storage.WriteRaw(SaveSerializer.Serialize(legacy));
+            var saveService = new SaveService(storage, new FakeClock(DateTime.UtcNow),
+                ProductDefinitionCatalog.CreateChapter1Catalog(),
+                EmployeeDefinitionCatalog.CreateDefaultCatalog(),
+                CompetitorDefinitionCatalog.CreateChapter1Catalog());
+
+            var loaded = saveService.Load(startingCashIfNew: 0);
+
+            Assert.AreEqual(TutorialStep.Completed, loaded.TutorialProgress);
         }
     }
 }

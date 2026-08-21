@@ -1,65 +1,56 @@
-# Handoff para o Claude — atualizado em 2026-08-21
+# Handoff para o Claude — 2026-08-21 01:55 (America/Sao_Paulo)
 
-Continue do estado atual; não reinicialize o projeto e não reverta os commits abaixo.
+Retome deste estado. Não reinicialize o projeto, não reverta commits e preserve alterações do usuário. Leia `PROGRESS.md`, `PROJECT-PLAN.md`, `GAME-DESIGN-DOCUMENT.md` e `ARCHITECTURE.md` antes de editar.
 
-## O que acabou de ser entregue
+## Estado entregue neste handoff
 
-1. `fe1c5d8 feat(ui): add research company character and event modal`
-   - Research, Company e Character integradas ao shell.
-   - Modal de eventos com escolhas reais.
-   - `PendingEvent` não é mais sobrescrito antes da resposta.
-2. `e792d68 fix(products): enforce tested lifecycle before launch`
-   - Lançamento bloqueado antes de Development completo + Teste.
-   - Bugs ocultos (`BugCount`) separados dos descobertos (`KnownBugCount`).
-   - Correção atua somente nos descobertos.
-   - Save schema V2 e migração V1→V2.
-3. Ícone original Android integrado e APK reconstruído. Consulte `git log -7 --oneline` para os hashes mais recentes.
-4. Incremento posterior: tempo como recurso real.
-   - Dia atual e ciclos restantes persistidos no save schema V3.
-   - Estudar/desenvolver/testar/corrigir consomem ciclo somente quando válidos.
-   - `Encerrar Dia` executa um ciclo econômico e restaura quatro ciclos.
-   - Office/Research exibem limite e motivo de falha.
-5. UX Android portrait corrigida.
-   - `SafeAreaFitter` para notch/barra de gestos.
-   - Cinco destinos principais + grade `Mais` 3×3.
-   - Voltar fecha menu/retorna ao Início.
-   - Build trava portrait e `renderOutsideSafeArea=false`.
+- Splash → Main Menu → Continue/New Game implementados por `StartupFlowBuilder`.
+- `Continuar` só habilita quando existia save no início da sessão.
+- `Novo Jogo` exige confirmação antes de apagar progresso existente.
+- Tutorial contextual do Capítulo 1 implementado no domínio e no Office: estudar → desenvolver → testar → corrigir bugs conhecidos → lançar → conquistar primeiro cliente.
+- A ação sugerida recebe destaque visual; o progresso do tutorial não depende da UI.
+- Save schema atual: **V4**. Migração de saves antigos preserva progresso e considera tutorial concluído quando já havia produto lançado/manutenção/descontinuado.
+- PlayMode batch usa `InMemorySaveStorage`, portanto os testes não leem nem alteram o save real em `Application.persistentDataPath`.
+- Ícone original, portrait, safe area e navegação mobile continuam integrados.
 
-## Evidência verificada
+## Evidência verificada nesta sessão
 
-- Domínio: 92/92 (`dotnet test Tests.NET/StartupEmpire.Domain.Tests.csproj`).
-- Backend: 22/22 (`dotnet test backend/StartupEmpire.Api.Tests/StartupEmpire.Api.Tests.csproj`); dentro de sandbox o Windows Event Log causa falso negativo, portanto rode com permissão normal.
-- Unity EditMode: 31/31.
-- Unity PlayMode: 8/8.
-- APK: `Builds/Android/StartupEmpire-debug.apk` (ignorado pelo Git), 45.610.490 bytes.
-- SHA-256: `6D6373E0679613059F9BA445D0305BBED08E9B47C541C61BAE39FA131B013D6F`.
-- BuildReport final: `Succeeded`, 0 erros, 0 avisos.
-- `aapt2 dump badging` confirmou o ícone em ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi.
-- O APK ainda NÃO foi executado em aparelho; o emulador visto na auditoria estava offline.
+- `dotnet test Tests.NET/StartupEmpire.Domain.Tests.csproj`: **92/92**, 0 falhas.
+- Unity EditMode: **32/32**, 0 falhas (`TestResults/editmode.xml`, pasta ignorada pelo Git).
+- Unity PlayMode: **9/9**, 0 falhas (`TestResults/playmode.xml`).
+- Backend: **22/22**, 0 falhas.
+- APK debug reconstruído com BuildReport `Succeeded`, 0 erros e 0 avisos.
+- APK: `Builds/Android/StartupEmpire-debug.apk` (ignorado pelo Git), **45.617.747 bytes**.
+- SHA-256: `8115D0D358499C72C495A4944E806ED5FA200BBEC3C35C71F1A331C0A1C90AB3`.
+- `aapt2`: package `com.startupempire.game`, minSdk 23, targetSdk 36, `screenOrientation=1`.
+- Runtime Android ainda **não validado**: `adb devices` retorna `emulator-5554 offline`.
 
-## Arquivos centrais alterados
+## Arquivos principais deste incremento
 
-- `Assets/Game/UI/EventModalBuilder.cs`
-- `Assets/Game/UI/Screens/{Research,Company,Character,Office,Products}ScreenPanel.cs`
-- `Assets/Game/Products/{ProductState,DevelopmentService}.cs`
+- `Assets/Game/Core/TutorialStep.cs`
+- `Assets/Game/Core/GameRoot.cs`
+- `Assets/Game/Core/GameState.cs`
+- `Assets/Game/UI/StartupFlowBuilder.cs`
+- `Assets/Game/UI/GameShellBuilder.cs`
+- `Assets/Game/UI/Screens/OfficeScreenPanel.cs`
 - `Assets/Game/Save/{SaveDataV1,SaveMigrator,SaveService}.cs`
-- `Assets/Game/Art/StartupEmpireAppIcon.png`
-- `Assets/Game/EditorTools/AndroidBuilder.cs`
-- `PROGRESS.md`, `PROJECT-PLAN.md`, `CHANGELOG.md`
+- `Assets/Game/Tests/{EditMode/SaveServiceTests,PlayMode/GameShellBuilderTests}.cs`
 
-## Próximos P0 recomendados
+## Próximas prioridades recomendadas
 
-1. Criar Splash/Main Menu/New Game/Continue e tutorial contextual persistido.
-2. Ligar emulador/dispositivo, instalar o APK atual e fazer smoke test + logcat antes de declarar runtime Android validado.
-3. Definir unidade econômica do dia (salários hoje são cobrados por ciclo, apesar do rótulo mensal) e rebalancear com testes.
-4. Adicionar scroll/ações bloqueadas com motivo nas telas de listas.
+1. Recuperar/recriar um emulador online ou conectar aparelho, instalar o APK e fazer smoke test com logcat. Não declarar runtime Android validado até isso ocorrer.
+2. Implementar backup recuperável `.bak` para save corrompido, preservando o fallback atual e cobrindo com testes.
+3. Criar tela dedicada de Development e melhorar estados bloqueados/scroll das listas.
+4. Definir a unidade econômica de salários/receita por dia e rebalancear com testes determinísticos.
+5. Gerar AAB e preparar assinatura release somente quando houver configuração segura de chave fora do repositório.
 
-## Limitações que não devem ser esquecidas
+## Limitações conhecidas
 
-- O teste do modal ainda usa sorteio probabilístico (300 ciclos); tornar o RNG injetável seria melhor.
-- Save corrompido ainda cai em jogo novo sem backup `.bak` recuperável.
-- Backend não tem autenticação/ownership comercial; `PlayerId` ainda é auto-declarado.
-- Não existe AAB/release signing/CI; o APK atual é debug.
-- A maior parte da UI interna ainda é placeholder; safe area global já foi corrigida.
+- O emulador está offline; o APK foi construído e inspecionado, mas não executado nesta máquina.
+- UI interna ainda é funcional/placeholder e precisa de direção visual final.
+- Não há AAB, assinatura release, Google Play Billing ou SDK real de anúncios.
+- Backend continua opcional e sem autenticação/ownership comercial; a campanha funciona offline.
+- O teste de evento usa probabilidade em até 300 ciclos; RNG injetável continua recomendável.
+- Save corrompido cai para jogo novo, ainda sem restauração de backup `.bak`.
 
-Antes de continuar, rode `git status --short --branch` e leia `PROGRESS.md`. A working tree deve estar limpa após o commit final desta sessão.
+Antes de continuar, rode `git status --short --branch` e `git log -10 --oneline`. A árvore deve estar limpa após o commit deste incremento.

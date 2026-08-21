@@ -27,12 +27,44 @@ namespace StartupEmpire.Tests.PlayMode
             yield return null;
         }
 
+        private static IEnumerator BuildAndStartFreshGame()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            GameObject.Find("Button_SkipSplash").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            GameObject.Find("Button_Novo Jogo").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator StartupFlow_RequiresEntry_AndDisablesContinueWithoutSave()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            var splash = GameObject.Find("Splash");
+            var gameplay = GameObject.Find("Canvas").transform.Find("Root").gameObject;
+            Assert.IsTrue(splash.activeInHierarchy);
+            Assert.IsFalse(gameplay.activeSelf);
+
+            GameObject.Find("Button_SkipSplash").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.IsFalse(splash.activeSelf);
+            Assert.IsTrue(GameObject.Find("MainMenu").activeInHierarchy);
+            Assert.IsFalse(GameObject.Find("Button_Continuar").GetComponent<Button>().interactable);
+
+            GameObject.Find("Button_Novo Jogo").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.IsTrue(gameplay.activeInHierarchy);
+            Assert.AreEqual(TutorialStep.LearnFundamentals, GameRoot.Instance.State.TutorialProgress);
+        }
+
         [UnityTest]
         public IEnumerator GameShellBuilder_CreatesOfficeScreen_WithoutErrors()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             var statusGo = GameObject.Find("StatusText");
             Assert.IsNotNull(statusGo, "StatusText não foi criado");
@@ -61,8 +93,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator StudyButton_Click_IncreasesKnowledge_AndRefreshesStatus()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             var knowledgeBefore = GameRoot.Instance.State.Player.GetKnowledge(Research.KnowledgeTracks.Fundamentos);
 
@@ -72,6 +103,7 @@ namespace StartupEmpire.Tests.PlayMode
 
             var knowledgeAfter = GameRoot.Instance.State.Player.GetKnowledge(Research.KnowledgeTracks.Fundamentos);
             Assert.Greater(knowledgeAfter, knowledgeBefore);
+            Assert.AreEqual(TutorialStep.DevelopProduct, GameRoot.Instance.State.TutorialProgress);
             Assert.AreEqual(GameRoot.Instance.State.Player.WorkCyclesPerDay - 1,
                 GameRoot.Instance.State.Player.RemainingWorkCycles);
         }
@@ -79,8 +111,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator WorkTime_BlocksExtraActions_AndEndDayRestoresCycles()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             var player = GameRoot.Instance.State.Player;
             var studyButton = GameObject.Find("Button_Estudar Fundamentos").GetComponent<Button>();
@@ -104,8 +135,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator NavBar_SwitchesToProductsScreen_AndShowsProductData()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             // Precisa capturar a referência ANTES de trocar de tela: GameObject.Find
             // não encontra objetos inativos, e o Office vai ficar inativo depois do clique.
@@ -131,8 +161,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator HireButton_Click_AddsEmployee_OnEmployeesScreen()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             GameObject.Find("Button_Equipe").GetComponent<Button>().onClick.Invoke();
             yield return null;
@@ -150,8 +179,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator ProductLifecycle_BlocksEarlyLaunch_ThenRequiresTesting()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             var product = GameRoot.Instance.State.Products[0];
             GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
@@ -166,6 +194,8 @@ namespace StartupEmpire.Tests.PlayMode
                 developButton.onClick.Invoke();
             }
             Assert.AreEqual(ProductStage.Testing, product.Stage);
+            Assert.AreEqual(TutorialStep.TestProduct, GameRoot.Instance.State.TutorialProgress,
+                "O tutorial deve reconhecer desenvolvimento feito fora da ordem sugerida");
 
             GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual(ProductStage.Testing, product.Stage,
@@ -173,16 +203,19 @@ namespace StartupEmpire.Tests.PlayMode
 
             GameObject.Find("Button_Testar Produto").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(product.HasBeenTested);
+            Assert.AreEqual(product.KnownBugCount > 0 ? TutorialStep.FixKnownBugs : TutorialStep.LaunchProduct,
+                GameRoot.Instance.State.TutorialProgress);
 
             GameObject.Find("Button_Lançar Produto").GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual(ProductStage.Launched, product.Stage);
+            Assert.AreEqual(TutorialStep.AcquireFirstCustomer, GameRoot.Instance.State.TutorialProgress,
+                "Lançar com bugs conhecidos não pode prender o tutorial em Corrigir");
         }
 
         [UnityTest]
         public IEnumerator NewScreens_AreReachable_ViaNavBar()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             GameObject.Find("Button_Mais").GetComponent<Button>().onClick.Invoke();
             yield return null;
@@ -212,8 +245,7 @@ namespace StartupEmpire.Tests.PlayMode
         [UnityTest]
         public IEnumerator EventModal_AppearsWhenEventTriggers_AndResolvingHidesIt()
         {
-            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
-            yield return null;
+            yield return BuildAndStartFreshGame();
 
             // Os eventos do capítulo 1 só ficam elegíveis depois que existe um
             // produto lançado ou um cliente pagante.

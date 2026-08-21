@@ -12,6 +12,7 @@ namespace StartupEmpire.Save
         public int WorkCyclesPerDay = 4;
         public int CurrentDay = 1;
         public int RemainingWorkCycles = 4;
+        public string TutorialStep = "LearnFundamentals";
         public List<KnowledgeEntry> Knowledge = new();
         public double Cash;
         public double MonthlyRecurringRevenue;

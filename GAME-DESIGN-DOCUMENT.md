@@ -34,6 +34,8 @@ Cada estágio desbloqueia mecânicas novas (contratação, pesquisa, investidore
 
 ## Capítulo 1 — "O Quarto" (MVP jogável)
 
+O onboarding é contextual: uma instrução curta destaca a próxima ação relevante no Office e avança conforme o estado real do domínio. Ele é persistido no save e termina somente após o primeiro cliente pagante, sem sequência de caixas de texto bloqueantes.
+
 **Estado inicial:** computador básico, R$ 500 em caixa, 0 funcionários, 0 clientes, 0 reputação, conhecimento = 0 em todas as trilhas.
 
 **Arco do capítulo:**

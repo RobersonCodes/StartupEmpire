@@ -28,6 +28,7 @@ namespace StartupEmpire.Core
         public HashSet<InvestmentRoundType> RaisedInvestmentRounds { get; } = new();
         public GemWalletState GemWallet { get; } = new();
         public StoreState Store { get; } = new();
+        public TutorialStep TutorialProgress { get; internal set; } = TutorialStep.LearnFundamentals;
         public DateTime LastSavedUtc { get; set; }
 
         public GameState(PlayerState player, EconomyState economy)

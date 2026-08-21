@@ -54,6 +54,7 @@ namespace StartupEmpire.Core
         public StatisticsService Statistics { get; private set; }
         public RankingClientService Ranking { get; private set; }
         public ReferralClientService Referrals { get; private set; }
+        public bool HadExistingSave { get; private set; }
 
         /// URL do backend (seção 3 da missão: opcional, o jogo funciona sem isso).
         /// Deixe vazio para usar os clientes nulos (offline-safe) por padrão.
@@ -114,23 +115,13 @@ namespace StartupEmpire.Core
             Ranking = new RankingClientService(rankingClient);
             Referrals = new ReferralClientService(referralClient, Gems);
 
-            var storage = new FileSaveStorage();
+            ISaveStorage storage = Application.isBatchMode
+                ? new InMemorySaveStorage()
+                : new FileSaveStorage();
             Save = new SaveService(storage, clock, Catalog, EmployeeCatalog, CompetitorCatalog);
+            HadExistingSave = Save.HasSave;
             State = Save.Load(_economyConfig.StartingCash);
-
-            if (State.Products.Count == 0)
-            {
-                var definition = Catalog.Find("first_website");
-                State.Products.Add(new ProductState(definition));
-            }
-
-            if (State.Competitors.Count == 0)
-            {
-                foreach (var competitorDefinition in CompetitorCatalog.All)
-                {
-                    State.Competitors.Add(new CompetitorState(competitorDefinition));
-                }
-            }
+            EnsureInitialContent();
 
             var offlineSummary = Idle.ApplyOfflineProgress(State);
             if (offlineSummary.CashEarned > 0)
@@ -176,6 +167,7 @@ namespace StartupEmpire.Core
             Progression.TryAdvance(State);
             Missions.EvaluateAll(State);
             Achievements.EvaluateAll(State);
+            RefreshTutorialProgress();
 
             // Só sorteia um evento novo se não houver um pendente ainda sem resposta —
             // caso contrário, um evento não resolvido seria descartado silenciosamente
@@ -218,6 +210,7 @@ namespace StartupEmpire.Core
                 * Store.GetBoostMultiplier(State.Store, StoreItemEffectType.DevSpeedBoost);
             var bugRateMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.BugRateReduction, State.Upgrades);
             Development.Develop(product, State.Player, knowledgeTrack, cycles, devSpeedMultiplier, bugRateMultiplier);
+            RefreshTutorialProgress();
             return GameActionResult.Completed("Desenvolvimento concluído por este ciclo.");
         }
 
@@ -230,6 +223,7 @@ namespace StartupEmpire.Core
 
             var knowledgeMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.KnowledgeGainMultiplier, State.Upgrades);
             Learning.Study(State.Player, track, cycles, knowledgeMultiplier);
+            RefreshTutorialProgress();
             return GameActionResult.Completed($"Você estudou {track}.");
         }
 
@@ -243,6 +237,7 @@ namespace StartupEmpire.Core
                 return GameActionResult.Rejected("Sem ciclos de trabalho. Encerre o dia para descansar.");
 
             var found = Development.TestForBugs(product, cycles);
+            RefreshTutorialProgress();
             return GameActionResult.Completed(found > 0
                 ? $"Teste concluído: {found} bug(s) descoberto(s)."
                 : "Teste concluído: nenhum bug novo encontrado.", found);
@@ -261,10 +256,16 @@ namespace StartupEmpire.Core
             var before = product.KnownBugCount;
             Development.FixBugs(product, cycles);
             var fixedCount = before - product.KnownBugCount;
+            RefreshTutorialProgress();
             return GameActionResult.Completed($"{fixedCount} bug(s) corrigido(s).", fixedCount);
         }
 
-        public bool LaunchProduct(ProductState product) => Development.Launch(product);
+        public bool LaunchProduct(ProductState product)
+        {
+            var launched = Development.Launch(product);
+            if (launched) RefreshTutorialProgress();
+            return launched;
+        }
 
         public GameActionResult EndWorkDay()
         {
@@ -303,6 +304,73 @@ namespace StartupEmpire.Core
 
         public Task<bool> RedeemReferralCodeAsync(string code) =>
             Referrals.RedeemAsync(State.GemWallet, code, State.Player.PlayerId);
+
+        public void StartNewGame()
+        {
+            State = Save.DeleteSaveAndCreateNew(_economyConfig.StartingCash);
+            PendingEvent = null;
+            EnsureInitialContent();
+            HadExistingSave = false;
+        }
+
+        private void EnsureInitialContent()
+        {
+            if (State.Products.Count == 0)
+            {
+                var definition = Catalog.Find("first_website");
+                State.Products.Add(new ProductState(definition));
+            }
+
+            if (State.Competitors.Count == 0)
+            {
+                foreach (var competitorDefinition in CompetitorCatalog.All)
+                {
+                    State.Competitors.Add(new CompetitorState(competitorDefinition));
+                }
+            }
+        }
+
+        private bool HasPayingCustomer()
+        {
+            foreach (var product in State.Products)
+            {
+                if (product.PayingCustomers > 0) return true;
+            }
+            return false;
+        }
+
+        private void RefreshTutorialProgress()
+        {
+            if (State.TutorialProgress == TutorialStep.Completed) return;
+            if (HasPayingCustomer())
+            {
+                State.TutorialProgress = TutorialStep.Completed;
+                return;
+            }
+
+            var product = State.Products.Count > 0 ? State.Products[0] : null;
+            if (product != null &&
+                (product.Stage == ProductStage.Launched || product.Stage == ProductStage.Maintenance ||
+                 product.Stage == ProductStage.Discontinued))
+            {
+                State.TutorialProgress = TutorialStep.AcquireFirstCustomer;
+                return;
+            }
+
+            if (product != null && product.Stage == ProductStage.Testing)
+            {
+                State.TutorialProgress = !product.HasBeenTested
+                    ? TutorialStep.TestProduct
+                    : product.KnownBugCount > 0
+                        ? TutorialStep.FixKnownBugs
+                        : TutorialStep.LaunchProduct;
+                return;
+            }
+
+            State.TutorialProgress = State.Player.GetKnowledge(KnowledgeTracks.Fundamentos) > 0
+                ? TutorialStep.DevelopProduct
+                : TutorialStep.LearnFundamentals;
+        }
 
         private void OnApplicationPause(bool pauseStatus)
         {

@@ -16,7 +16,10 @@ namespace StartupEmpire.UI
         private Text _topBarText;
         private ScreenManager _screenManager;
         private EventModalBuilder _eventModal;
+        private StartupFlowBuilder _startupFlow;
+        private GameObject _gameplayRoot;
         private GameObject _moreMenu;
+        private bool _gameplayVisible;
         private string _currentScreenId;
         private readonly Dictionary<string, IScreenPanel> _panelsById = new();
 
@@ -24,14 +27,14 @@ namespace StartupEmpire.UI
         {
             EnsureEventSystem();
             var canvas = BuildCanvas();
-            var root = UiFactory.CreatePanel(canvas.transform, UiFactory.PanelBackground, "Root");
-            root.AddComponent<SafeAreaFitter>();
+            _gameplayRoot = UiFactory.CreatePanel(canvas.transform, UiFactory.PanelBackground, "Root");
+            _gameplayRoot.AddComponent<SafeAreaFitter>();
 
-            _topBarText = UiFactory.CreateText(root.transform, "", 24, TextAnchor.MiddleLeft,
+            _topBarText = UiFactory.CreateText(_gameplayRoot.transform, "", 24, TextAnchor.MiddleLeft,
                 new Vector2(0.02f, 0.945f), new Vector2(0.98f, 0.99f), "TopBarText");
 
             var contentGo = new GameObject("Content", typeof(RectTransform));
-            contentGo.transform.SetParent(root.transform, false);
+            contentGo.transform.SetParent(_gameplayRoot.transform, false);
             UiFactory.Stretch(contentGo.GetComponent<RectTransform>(), new Vector2(0f, 0.10f), new Vector2(1f, 0.935f));
 
             _screenManager = gameObject.AddComponent<ScreenManager>();
@@ -50,13 +53,16 @@ namespace StartupEmpire.UI
             RegisterPanel("Company", new CompanyScreenPanel(), contentGo.transform);
             RegisterPanel("Character", new CharacterScreenPanel(), contentGo.transform);
 
-            BuildNavBar(root.transform);
-            BuildMoreMenu(root.transform);
+            BuildNavBar(_gameplayRoot.transform);
+            BuildMoreMenu(_gameplayRoot.transform);
 
             _eventModal = new EventModalBuilder();
             _eventModal.Build(canvas.transform);
 
             ShowScreen("Office");
+            _gameplayRoot.SetActive(false);
+            _startupFlow = new StartupFlowBuilder();
+            _startupFlow.Build(canvas.transform, EnterGame);
         }
 
         private void RegisterPanel(string id, IScreenPanel panel, Transform contentParent)
@@ -78,6 +84,7 @@ namespace StartupEmpire.UI
 
         private void Update()
         {
+            if (!_gameplayVisible) return;
             if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
             if (GameRoot.Instance == null) return;
             var state = GameRoot.Instance.State;
@@ -87,6 +94,13 @@ namespace StartupEmpire.UI
                 $"Tempo: {state.Player.RemainingWorkCycles}/{state.Player.WorkCyclesPerDay}   {state.Stage}";
 
             _eventModal.Tick();
+        }
+
+        private void EnterGame()
+        {
+            _gameplayRoot.SetActive(true);
+            _gameplayVisible = true;
+            ShowScreen("Office");
         }
 
         private void BuildNavBar(Transform parent)

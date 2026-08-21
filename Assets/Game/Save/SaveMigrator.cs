@@ -6,10 +6,10 @@ namespace StartupEmpire.Save
 {
     /// Aplica migrações em cadeia para nunca perder progresso quando um campo novo
     /// é adicionado ao save (seção 25 da missão). A V2 preserva bugs/testes;
-    /// a V3 introduz o calendário de trabalho persistido.
+    /// a V3 introduz o calendário e a V4 persiste o tutorial contextual.
     public static class SaveMigrator
     {
-        public const int CurrentSchemaVersion = 3;
+        public const int CurrentSchemaVersion = 4;
 
         public static SaveDataV1 MigrateToCurrent(SaveDataV1 data)
         {
@@ -54,6 +54,23 @@ namespace StartupEmpire.Save
                 data.CurrentDay = 1;
                 data.RemainingWorkCycles = data.WorkCyclesPerDay;
                 data.SchemaVersion = 3;
+            }
+
+            if (data.SchemaVersion < 4)
+            {
+                var alreadyProgressed = false;
+                foreach (var product in data.Products)
+                {
+                    if (Enum.TryParse<ProductStage>(product.Stage, out var stage) &&
+                        (stage == ProductStage.Launched || stage == ProductStage.Maintenance ||
+                         stage == ProductStage.Discontinued))
+                    {
+                        alreadyProgressed = true;
+                        break;
+                    }
+                }
+                data.TutorialStep = alreadyProgressed ? "Completed" : "LearnFundamentals";
+                data.SchemaVersion = 4;
             }
 
             return data;
