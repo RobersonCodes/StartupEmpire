@@ -63,6 +63,21 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 4. Nos testes de integração do backend, trocar o `AppDbContext` de Npgsql para SQLite via `WebApplicationFactory` falhava com "Only a single database provider can be registered" mesmo removendo o descritor `DbContextOptions<AppDbContext>`. Causa: `AddDbContext` com uma `Action<DbContextOptionsBuilder>` também registra `IDbContextOptionsConfiguration<AppDbContext>`, e a chamada antiga (Npgsql) continuava lá. Corrigido removendo os dois descritores antes de registrar o Sqlite.
 5. O mesmo bug de `.gitignore` que já tinha escondido o `.csproj` de `Tests.NET` (ver item 2 da sessão anterior) estava prestes a se repetir com `backend/**/*.csproj` — pego e corrigido antes do primeiro commit do backend, generalizando a exceção no `.gitignore`.
 
+## 🎉 Primeira compilação real dentro do Unity Editor
+
+O projeto abriu de verdade no Unity Editor 6000.0.82f1 pela primeira vez. A licença
+Unity já estava ativa nesta máquina (sessão anterior cacheada), então nem foi preciso
+fazer login. A primeira compilação real revelou um erro que eu já tinha sinalizado como
+risco: `System.Text.Json` não existe no perfil de API padrão do Unity (`error CS0234`).
+Troquei `SaveSerializer` para `Newtonsoft.Json` (client via `com.unity.nuget.newtonsoft-json`,
+`Tests.NET` via pacote NuGet padrão) — reabri o projeto e a compilação terminou com
+**zero erros**, módulo Android reconhecido (`Android Extension - Scanning For ADB Devices`
+aparece no log), e os 82/82 testes do `Tests.NET` continuam passando depois da troca.
+
+Isso está registrado em 4 commits: o fix em si, e três de "primeira importação real" com
+todos os `.meta` files e `ProjectSettings/*.asset` que o Editor gerou (antes só existia o
+`ProjectVersion.txt` escrito à mão como placeholder).
+
 ## Estado do escopo puramente C# (sem depender do Editor)
 
 Com Ads e Statistics, todos os sistemas de domínio da missão que podem ser implementados

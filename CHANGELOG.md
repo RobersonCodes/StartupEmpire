@@ -70,8 +70,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - 10 novos testes reais (`AdRewardServiceTests`, `StatisticsServiceTests`) — suíte total do cliente: 82/82 passando.
 - Com isso, todo o escopo de domínio da missão que não depende do Unity Editor está implementado e testado.
 
+### Added (continuação — primeira compilação real no Unity Editor)
+- Unity Editor 6000.0.82f1 (LTS) + Android Build Support completo instalados de verdade nesta máquina (ver `PROJECT-PLAN.md` para como o bloqueio foi contornado via CLI headless).
+- Projeto aberto pela primeira vez no Editor real. Licença já estava ativa (sessão cacheada anterior), sem precisar de login.
+- `.meta` files e `ProjectSettings/*.asset` gerados pelo Editor e commitados — antes só existia um `ProjectVersion.txt` escrito à mão como placeholder.
+
+### Fixed (continuação)
+- Primeiro erro de compilação real do projeto: `System.Text.Json` não existe no perfil de API padrão do Unity (`error CS0234`/`CS0246` em `SaveSerializer.cs`), exatamente o risco que o comentário original do arquivo já sinalizava. Trocado para `Newtonsoft.Json` (`com.unity.nuget.newtonsoft-json` no Unity, pacote NuGet padrão no `Tests.NET`). Recompilado no Editor real: 0 erros. 82/82 testes `.NET` continuam passando depois da troca.
+
 ### Known limitations
-- Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.
+- Unity Editor e Android SDK agora estão instalados e o projeto compila sem erros (ver acima); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados — isso é próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
 - Gems ainda só são obtidos via recompensa de missão ou referral; não há vínculo com pagamento real (Google Play Billing) nem com anúncios recompensados (`IAdService` ainda não implementado).
 - O backend não tem autenticação real — `PlayerId` é auto-declarado pelo cliente (item futuro, seção 3 da missão).
