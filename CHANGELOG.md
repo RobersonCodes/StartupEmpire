@@ -26,5 +26,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Fixed (continuação)
 - `.gitignore` tinha um `*.csproj` genérico que excluía silenciosamente `Tests.NET/StartupEmpire.Domain.Tests.csproj` (hand-authored, não gerado). Os dois commits de teste anteriores nunca incluíram o `.csproj`. Corrigido com `!Tests.NET/**/*.csproj`.
 
+### Added (continuação — Competitors, Investment)
+- `Competitors`: `CompetitorDefinition`/`CompetitorState`/`CompetitorService` (seção 15) — 2 concorrentes do Capítulo 1 (RivalTech, MegaCorp Software), crescimento por taxa fixa configurável por ciclo (`UserGrowthRatePerCycle`/`ValuationGrowthRatePerCycle`, sem IA pesada) e participação de mercado recalculada comparando usuários do jogador contra a soma dos concorrentes.
+- `Investment`: `InvestmentOffer`/`InvestmentService` (seção 17) — catálogo com Angel, Seed, Series A/B/C, cada oferta com estágio mínimo de empresa e valuation mínimo exigidos; `EconomyEngine.ApplyInvestment` dilui `FounderEquity` multiplicativamente (composição real entre rodadas, não uma soma ingênua) e cada rodada só pode ser aceita uma vez.
+- `GameRoot.RunGameCycle` agora também simula concorrentes e recalcula participação de mercado a cada ciclo; novo método `AcceptInvestmentOffer`.
+- Persistência de Competitors e das rodadas de investimento já captadas no save, com o mesmo padrão de segurança contra órfãos (definição removida do catálogo = entrada ignorada, não quebra o load).
+- 10 novos testes reais (`CompetitorServiceTests`, `InvestmentServiceTests`, mais 1 em `SaveServiceTests`) — suíte total: 56/56 passando.
+
 ### Known limitations
 - Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.
+- IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.

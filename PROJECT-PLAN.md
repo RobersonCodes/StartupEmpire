@@ -46,8 +46,8 @@
 [x] 15. Employees (10 cargos, contratação/demissão, folha de pagamento, produtividade por cargo)
 [x] 16. Company Progression (gates Pessoa Física → Freelancer → Microempresa → Startup)
 [x] 17. Events (sistema data-driven com escolhas e consequências: Servidor caiu, Bug crítico, Cliente importante)
-[ ] 18. Competitors
-[ ] 19. Investment
+[x] 18. Competitors (2 concorrentes simulados, crescimento simples, participação de mercado)
+[x] 19. Investment (Angel/Seed/Series A/B/C com diluição real de equity; Ipo pendente de mecânica própria)
 [x] 20. Achievements (Hello World, First Customer, MRR, Founder, Unicorn)
 [ ] 21. Premium Currency
 [ ] 22. Store
@@ -56,7 +56,7 @@
 [ ] 25. Audio
 [ ] 26. Art polish
 [ ] 27. Android optimization
-[x] 28. Tests — 46 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
+[x] 28. Tests — 56 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
 [ ] 29. Balancing
 [ ] 30. APK/AAB (depende do Editor instalado — ver bloqueio)
 [ ] 31. Documentation

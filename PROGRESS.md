@@ -34,8 +34,8 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Upgrades — computador, internet, ferramentas de produtividade, cursos online; custo cresce por nível, multiplicadores agregados por efeito
 - [COMPLETED] Employees — 10 cargos (seção 11), contratação, demissão, folha de pagamento com satisfação/experiência, multiplicador de produtividade por cargo
 - [COMPLETED] Events — sistema data-driven com escolhas e consequências reais (Servidor caiu, Bug crítico, Cliente importante)
-- [PENDING] Competitors
-- [PENDING] Investment
+- [COMPLETED] Competitors — 2 concorrentes simulados (RivalTech, MegaCorp Software) com crescimento por taxa fixa e participação de mercado recalculada por ciclo; sem IA pesada
+- [COMPLETED] Investment — rodadas Angel/Seed/Series A/B/C com elegibilidade por estágio e valuation, diluição real e composta de FounderEquity (Ipo modelado no enum, sem oferta própria ainda — é o estágio final de CompanyStage, não uma troca caixa-por-equity)
 - [PENDING] Premium currency / Store
 - [PENDING] Ad service abstraction
 - [PENDING] Ranking/backend
@@ -47,7 +47,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` — 46 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (6), ProgressionService (2), Missions/Achievements (3), UpgradeService (5), HiringService (6), EventService (4), LearningService (2).
+- [COMPLETED] `Tests.NET` — 56 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (3), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5).
 - [PENDING] Unity Test Framework (PlayMode/EditMode) — aguarda instalação do Editor. Os mesmos arquivos-fonte já compilam para isso; nenhuma reescrita será necessária.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
