@@ -48,6 +48,14 @@ namespace StartupEmpire.Economy
             state.MonthlyRecurringRevenue = mrr;
         }
 
+        /// Aplica uma rodada de investimento: soma o caixa recebido e dilui a
+        /// participação do fundador multiplicativamente (nunca abaixo de 0).
+        public void ApplyInvestment(EconomyState state, double cashAmount, double equityPercentGiven)
+        {
+            state.Apply(new LedgerEntry(_clock.UtcNow, LedgerCategory.Investment, cashAmount, "investment_round"));
+            state.FounderEquity = Math.Max(0, state.FounderEquity * (1 - equityPercentGiven));
+        }
+
         public void RecomputeValuation(EconomyState state)
         {
             state.Valuation = Math.Max(0,
