@@ -84,8 +84,18 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - `[assembly: InternalsVisibleTo("StartupEmpire.Tests.EditMode")]` em `Assets/Game/AssemblyInfo.cs` — necessário porque, com dois assemblies separados, os setters `internal` deixaram de ser visíveis para os testes (no `Tests.NET` isso nunca foi problema porque tudo compila numa única assembly).
 - **Rodado de verdade** via `Unity.exe -batchmode -projectPath ... -runTests -testPlatform EditMode -testResults results.xml`: `test-run result="Passed" total="24" passed="24" failed="0" inconclusive="0" skipped="0"`, 0.37s. Não é alegação — resultado extraído do XML gerado pelo próprio Unity Test Runner.
 
+### Added (continuação — Audio, tela jogável, APK Android real)
+- `Audio`: `AudioManager`/`AudioMixState` (seção 28) — volume independente por categoria (música/UI/ambiente/eventos/conquistas). Sem clipes ainda: sem ferramenta para gerar áudio original ou obter licença compatível; sistema pronto para receber clipes quando existirem. 5 novos testes reais.
+- Primeira tela jogável de verdade: `OfficeScreenBuilder` monta a UI do hub (Canvas, status, botões Estudar/Desenvolver/Corrigir Bugs/Lançar/Avançar Ciclo) em runtime, ligada direto na API existente de `GameRoot`. Cena `Assets/Game/UI/Scenes/Office.unity` gerada por um novo editor tool (`SceneBuilder`, também rodável headless).
+- **APK Android real gerado**: `Builds/Android/StartupEmpire-debug.apk` (32.189.060 bytes), via novo `AndroidBuilder` editor tool rodado com `Unity.exe -batchmode -executeMethod ... -quit`. `result=Succeeded totalErrors=0 totalWarnings=0`, build IL2CPP+Gradle real de ~5m44s. Confirmado com o comando `file` do sistema, não é alegação sem evidência.
+- 2 novos testes PlayMode reais (`OfficeScreenBuilderTests`) — rodam a UI de verdade em Play Mode dentro do Unity.
+
+### Fixed (continuação)
+- `OfficeScreenBuilder` criava o `Canvas` como GameObject raiz desconectado de `GameRoot`, então destruir o `GameRoot` nunca limpava a UI — um teste PlayMode pegou isso na primeira execução (segundo teste encontrava o botão órfão do primeiro, com listener já morto). Corrigido parentando o `Canvas` sob o `transform` do `GameRoot`.
+- `AndroidBuilder.cs` não compilou de primeira: faltava `using UnityEditor.Build;` para `NamedBuildTarget`. Corrigido e recompilado antes do build real.
+
 ### Known limitations
-- Unity Editor e Android SDK agora estão instalados e o projeto compila sem erros (ver acima); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados — isso é próximo trabalho, não mais um bloqueio de ambiente.
+- Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
 - Gems ainda só são obtidos via recompensa de missão ou referral; não há vínculo com pagamento real (Google Play Billing) nem com anúncios recompensados (`IAdService` ainda não implementado).
 - O backend não tem autenticação real — `PlayerId` é auto-declarado pelo cliente (item futuro, seção 3 da missão).
