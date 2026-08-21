@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -12,11 +13,13 @@ namespace StartupEmpire.EditorTools
     public static class AndroidBuilder
     {
         private const string OutputPath = "Builds/Android/StartupEmpire-debug.apk";
+        private const string AppIconPath = "Assets/Game/Art/StartupEmpireAppIcon.png";
 
         [MenuItem("StartupEmpire/Build Android APK (Debug)")]
         public static void BuildDebugApk()
         {
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.startupempire.game");
+            ConfigureAndroidIcons();
 
             var buildPlayerOptions = new BuildPlayerOptions
             {
@@ -34,6 +37,29 @@ namespace StartupEmpire.EditorTools
                 $"totalErrors={summary.totalErrors} totalWarnings={summary.totalWarnings} " +
                 $"sizeBytes={summary.totalSize} timeSeconds={summary.totalTime.TotalSeconds:F1} " +
                 $"outputPath={summary.outputPath}");
+        }
+
+        private static void ConfigureAndroidIcons()
+        {
+            var iconTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
+            if (iconTexture == null)
+            {
+                throw new System.InvalidOperationException($"App icon not found at {AppIconPath}");
+            }
+
+            SetSingleLayerIcons(AndroidPlatformIconKind.Legacy, iconTexture);
+            SetSingleLayerIcons(AndroidPlatformIconKind.Round, iconTexture);
+            Debug.Log($"[AndroidBuilder] configured app icon from {AppIconPath}");
+        }
+
+        private static void SetSingleLayerIcons(PlatformIconKind kind, Texture2D texture)
+        {
+            var icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, kind);
+            foreach (var icon in icons)
+            {
+                icon.SetTexture(texture, 0);
+            }
+            PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, kind, icons);
         }
     }
 }

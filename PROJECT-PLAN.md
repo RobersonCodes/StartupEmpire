@@ -55,11 +55,11 @@
 [x] 23. Statistics — StatisticsService agrega o GameState num snapshot legível (telas in-game ficam para a etapa de UI)
 [~] 24. UI final (14/19 experiências: 13 telas navegáveis + modal de Events; faltam Splash, Main Menu, New Game, Continue e Development dedicada; navegação/eventos testados em PlayMode)
 [x] 25. Audio (AudioManager com volume independente por categoria; sem clipes — nenhum áudio original disponível ainda)
-[ ] 26. Art polish (visual atual é placeholder funcional)
+[~] 26. Art polish (ícone original integrado; visual interno ainda é placeholder funcional)
 [ ] 27. Android optimization
 [x] 28. Tests — 90 `.NET` + 27 EditMode + 7 PlayMode (124 reais no cliente) + 22 no backend
 [ ] 29. Balancing
-[x] 30. APK/AAB — **APK de debug real gerado**: `Builds/Android/StartupEmpire-debug.apk`, 32.189.060 bytes, build IL2CPP+Gradle real (result=Succeeded, 0 erros, 0 avisos, ~5m44s). AAB (formato de publicação) ainda não gerado.
+[x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.648.468 bytes, SHA-256 `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`, build IL2CPP+Gradle real (0 erros, 0 avisos) com ícone customizado. AAB ainda não gerado.
 [ ] 31. Documentation
 ```
 

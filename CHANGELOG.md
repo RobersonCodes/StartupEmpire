@@ -124,6 +124,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - `DevelopmentService.Launch` aceitava `Planning`, `Development` e qualquer outro estágio. Agora retorna `false` sem efeito fora de `Testing` ou antes da primeira rodada de testes.
 - `FixBugs` podia corrigir bugs ainda não descobertos e operar fora de Testing/Maintenance. Agora respeita estágio e conhecimento do jogador.
 
+### Added (continuação — identidade Android)
+- Ícone original do STARTUP EMPIRE em `Assets/Game/Art/StartupEmpireAppIcon.png`: notebook de programação evoluindo para uma empresa tecnológica global, sem copiar marcas ou jogos existentes.
+- `AndroidBuilder` configura automaticamente o mesmo asset nos slots Android Legacy e Round antes do build, evitando que builds futuros voltem ao ícone padrão.
+- APK reconstruído do HEAD atual: 45.648.468 bytes, SHA-256 `CDE073EE732B03957F68801E25C4723A0E4B21801822A23C972BE42B3374A6BF`, 0 erros/0 avisos. `aapt2` confirmou `app_icon.png` nas seis densidades Android.
+
 ### Known limitations
 - Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
