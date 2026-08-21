@@ -39,6 +39,7 @@ namespace StartupEmpire.Save
             var data = new SaveDataV1
             {
                 SchemaVersion = SaveMigrator.CurrentSchemaVersion,
+                PlayerId = state.Player.PlayerId,
                 PlayerName = state.Player.Name,
                 Cash = state.Economy.Cash,
                 MonthlyRecurringRevenue = state.Economy.MonthlyRecurringRevenue,
@@ -152,7 +153,7 @@ namespace StartupEmpire.Save
             if (data == null) return CreateNewGame(startingCashIfNew);
             data = SaveMigrator.MigrateToCurrent(data);
 
-            var player = new PlayerState { Name = data.PlayerName };
+            var player = new PlayerState { PlayerId = data.PlayerId, Name = data.PlayerName };
             foreach (var knowledge in data.Knowledge) player.AddKnowledge(knowledge.Track, knowledge.Amount);
 
             var economy = new EconomyState(data.Cash)

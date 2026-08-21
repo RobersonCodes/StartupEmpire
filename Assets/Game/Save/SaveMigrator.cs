@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace StartupEmpire.Save
@@ -13,6 +14,10 @@ namespace StartupEmpire.Save
         {
             if (data == null) return null;
             if (data.SchemaVersion < 1) data.SchemaVersion = 1;
+
+            // Saves anteriores à introdução de Ranking/Referrals não tinham PlayerId —
+            // gera um novo aqui em vez de mandar string vazia pro backend.
+            if (string.IsNullOrEmpty(data.PlayerId)) data.PlayerId = Guid.NewGuid().ToString("N");
 
             data.Products ??= new List<ProductSaveEntry>();
             data.Knowledge ??= new List<KnowledgeEntry>();

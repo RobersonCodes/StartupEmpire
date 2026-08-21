@@ -7,6 +7,7 @@ namespace StartupEmpire.Save
     public sealed class SaveDataV1
     {
         public int SchemaVersion = 1;
+        public string PlayerId;
         public string PlayerName = "Founder";
         public List<KnowledgeEntry> Knowledge = new();
         public double Cash;

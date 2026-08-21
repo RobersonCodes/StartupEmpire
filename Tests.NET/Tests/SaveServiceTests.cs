@@ -25,7 +25,7 @@ namespace StartupEmpire.Domain.Tests
             var competitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
             var saveService = new SaveService(storage, clock, catalog, employeeCatalog, competitorCatalog);
 
-            var player = new PlayerState { Name = "Ana" };
+            var player = new PlayerState { PlayerId = "player-abc123", Name = "Ana" };
             player.AddKnowledge(KnowledgeTracks.Fundamentos, 42);
             var economy = new EconomyState(1234.5) { MonthlyRecurringRevenue = 99, Valuation = 5000 };
             var state = new GameState(player, economy) { Stage = CompanyStage.Freelancer };
@@ -47,6 +47,7 @@ namespace StartupEmpire.Domain.Tests
             saveService.Save(state);
             var loaded = saveService.Load(startingCashIfNew: 0);
 
+            Assert.Equal("player-abc123", loaded.Player.PlayerId);
             Assert.Equal("Ana", loaded.Player.Name);
             Assert.Equal(42, loaded.Player.GetKnowledge(KnowledgeTracks.Fundamentos));
             Assert.Equal(1234.5, loaded.Economy.Cash);
