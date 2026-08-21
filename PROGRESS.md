@@ -53,7 +53,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 - [COMPLETED] `Tests.NET` (cliente) — 82 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (4), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5), GemWalletService (4), StoreService (6), RankingClientService (2), ReferralClientService (3), AdRewardService (5), StatisticsService (5).
 - [COMPLETED] `backend/StartupEmpire.Api.Tests` — 22 testes reais via `dotnet test`: 15 de unidade (RankingService/ReferralService com repositórios fake em memória) + 7 de integração HTTP ponta a ponta (`WebApplicationFactory<Program>` + SQLite em memória, motor relacional de verdade).
-- [PENDING] Unity Test Framework (PlayMode/EditMode) — aguarda instalação do Editor. Os mesmos arquivos-fonte já compilam para isso; nenhuma reescrita será necessária.
+- [COMPLETED] Unity Test Framework (EditMode) — **24/24 testes reais passando**, rodados via `Unity.exe -batchmode -runTests -testPlatform EditMode` (não é alegação: `test-run result="Passed" total="24" passed="24" failed="0"`, 0.37s). Cobre uma amostra representativa (Economy, Development, Customer Acquisition, Save, Idle, Progression, Missions/Achievements) portada do `Tests.NET`; o resto da cobertura (82/82) continua no `Tests.NET`. Exigiu separar o código do jogo em seu próprio assembly definition (`StartupEmpire.Game.asmdef`) e adicionar `[InternalsVisibleTo]` para os testes acessarem os setters `internal`.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 

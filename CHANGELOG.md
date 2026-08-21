@@ -78,6 +78,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Fixed (continuação)
 - Primeiro erro de compilação real do projeto: `System.Text.Json` não existe no perfil de API padrão do Unity (`error CS0234`/`CS0246` em `SaveSerializer.cs`), exatamente o risco que o comentário original do arquivo já sinalizava. Trocado para `Newtonsoft.Json` (`com.unity.nuget.newtonsoft-json` no Unity, pacote NuGet padrão no `Tests.NET`). Recompilado no Editor real: 0 erros. 82/82 testes `.NET` continuam passando depois da troca.
 
+### Added (continuação — testes reais dentro do Unity Test Runner)
+- `Assets/Game/StartupEmpire.Game.asmdef`: assembly definition próprio para o código do jogo (antes compilava implicitamente em `Assembly-CSharp`) — necessário porque um asmdef externo não consegue referenciar `Assembly-CSharp` por nome.
+- `Assets/Game/Tests/EditMode/`: suíte real do Unity Test Framework (NUnit), 24 testes portados do `Tests.NET` cobrindo Economy, Development, Customer Acquisition, Save, Idle, Progression e Missions/Achievements.
+- `[assembly: InternalsVisibleTo("StartupEmpire.Tests.EditMode")]` em `Assets/Game/AssemblyInfo.cs` — necessário porque, com dois assemblies separados, os setters `internal` deixaram de ser visíveis para os testes (no `Tests.NET` isso nunca foi problema porque tudo compila numa única assembly).
+- **Rodado de verdade** via `Unity.exe -batchmode -projectPath ... -runTests -testPlatform EditMode -testResults results.xml`: `test-run result="Passed" total="24" passed="24" failed="0" inconclusive="0" skipped="0"`, 0.37s. Não é alegação — resultado extraído do XML gerado pelo próprio Unity Test Runner.
+
 ### Known limitations
 - Unity Editor e Android SDK agora estão instalados e o projeto compila sem erros (ver acima); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados — isso é próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
