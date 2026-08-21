@@ -110,6 +110,9 @@
     <Compile Include="..\Assets\Game\Ads\AdConfigValues.cs" Link="Domain\Ads\AdConfigValues.cs" />
     <Compile Include="..\Assets\Game\Ads\AdRewardService.cs" Link="Domain\Ads\AdRewardService.cs" />
 
+    <Compile Include="..\Assets\Game\Audio\AudioCategory.cs" Link="Domain\Audio\AudioCategory.cs" />
+    <Compile Include="..\Assets\Game\Audio\AudioMixState.cs" Link="Domain\Audio\AudioMixState.cs" />
+
     <Compile Include="..\Assets\Game\Statistics\StatisticsSnapshot.cs" Link="Domain\Statistics\StatisticsSnapshot.cs" />
     <Compile Include="..\Assets\Game\Statistics\StatisticsService.cs" Link="Domain\Statistics\StatisticsService.cs" />
 
