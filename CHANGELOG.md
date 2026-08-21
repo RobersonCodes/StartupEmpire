@@ -58,9 +58,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - O mesmo bug de `.gitignore` que excluía `Tests.NET/*.csproj` (ver seção anterior) estava prestes a se repetir com `backend/**/*.csproj` — generalizada a exceção antes do primeiro commit do backend.
 - Pacotes com vulnerabilidades conhecidas nos templates padrão: `Microsoft.OpenApi` 2.0.0 (GHSA-v5pm-xwqc-g5wc, pinado em 2.12.2) e `SQLitePCLRaw.lib.e_sqlite3` 2.1.11 (GHSA-2m69-gcr7-jv3q, pinado em 3.53.3). Backend builda com 0 avisos e 0 vulnerabilidades conhecidas.
 
+### Added (continuação — verificação contra Postgres real via Docker)
+- `backend/docker-compose.yml`: Postgres 16 dedicado deste projeto, isolado do nativo (porta 5432, ocupada e com senha desconhecida) e dos containers de outros projetos (5555/5455 já em uso) — sobe na porta 5442.
+- Connection string configurada via `dotnet user-secrets` (nunca commitada). Migration `InitialCreate` aplicada de verdade contra esse Postgres.
+- API rodada de verdade (`dotnet run`, `ASPNETCORE_ENVIRONMENT=Development`) e testada via `curl` ponta a ponta: submissão de ranking, top/rank, geração de código de indicação, resgate com sucesso e rejeição correta de um segundo resgate pelo mesmo convidado — tudo confirmado também via `psql` direto nas tabelas, não só pela resposta HTTP.
+- Isso resolve a limitação anterior ("backend não testado contra Postgres real") registrada nesta mesma sessão.
+
 ### Known limitations
 - Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
 - Gems ainda só são obtidos via recompensa de missão ou referral; não há vínculo com pagamento real (Google Play Billing) nem com anúncios recompensados (`IAdService` ainda não implementado).
-- O backend não foi testado contra o PostgreSQL real desta máquina (credenciais não disponíveis para o agente — ver `backend/README.md`); só contra SQLite em memória. Também não tem autenticação real — `PlayerId` é auto-declarado pelo cliente.
+- O backend não tem autenticação real — `PlayerId` é auto-declarado pelo cliente (item futuro, seção 3 da missão).
 - `HttpRankingClient`/`HttpReferralClient`/`UnityWebRequestAsync` dependem de `UnityEngine`/`UnityWebRequest` e não foram compilados nem testados (aguardando o Unity Editor); a lógica pura (`RankingClientService`, `ReferralClientService`) está coberta por testes reais.

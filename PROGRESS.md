@@ -8,7 +8,7 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Unity Hub instalado via winget
 - [BLOCKED] Unity Editor + módulo Android — requer login/ativação interativa do usuário. Ver `PROJECT-PLAN.md` seção "Bloqueio".
 - [BLOCKED] Android SDK — instalado junto ao módulo Android do Unity Hub (mesmo bloqueio acima)
-- [BLOCKED] Conexão com o PostgreSQL 16 nativo já rodando nesta máquina (porta 5432, serviço `postgresql-x64-16`) — exige senha (`scram-sha-256`), que este agente não tem e não tentou adivinhar (é um Postgres que provavelmente serve outros projetos seus). O backend (`backend/`) está 100% pronto para Postgres (Npgsql, migration gerada); os testes automatizados usam SQLite em memória como evidência real sem tocar no seu banco. Ver `backend/README.md` para como apontar para o Postgres local quando você tiver as credenciais à mão.
+- [RESOLVED] Conexão com Postgres real — o PostgreSQL 16 **nativo** desta máquina (porta 5432) continua bloqueado por senha que o agente não tem e não tentou adivinhar (provavelmente serve outros projetos seus). Mas o Docker Desktop foi ligado durante a sessão, então subimos um Postgres **dedicado** deste projeto via `backend/docker-compose.yml` (porta 5442, isolado, não mexe no nativo nem nos containers de outros projetos). Migration aplicada de verdade (`dotnet ef database update`), API rodada de verdade (`dotnet run`), e os fluxos de Ranking e Referrals testados via `curl` ponta a ponta — inclusive a rejeição correta de um segundo resgate pelo mesmo convidado — com os dados confirmados também via `psql` direto no banco. Ver `backend/README.md`.
 - [COMPLETED] Repositório Git inicializado
 
 ## Documentação

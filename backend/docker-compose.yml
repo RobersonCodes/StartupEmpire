@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: startup-empire-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: startup_empire
+      POSTGRES_USER: startup_empire
+      # Senha de desenvolvimento local apenas — este container é isolado e só
+      # existe para este projeto. Nunca aponte isso para um ambiente real.
+      POSTGRES_PASSWORD: startup_empire_dev
+    ports:
+      # 5432 já está ocupado pelo PostgreSQL nativo desta máquina; outros projetos
+      # já usam 5555/5455 (ver `docker ps`), então este projeto usa 5442.
+      - "5442:5432"
+    volumes:
+      - startup_empire_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U startup_empire -d startup_empire"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  startup_empire_pg_data:

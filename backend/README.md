@@ -11,47 +11,63 @@ Referrals (seção 24) da missão, por enquanto. O jogo principal continua funci
   - `Unit/` — `RankingService`/`ReferralService` testados com repositórios fake em memória, sem banco nenhum.
   - `Integration/` — sobem a API inteira (`Program.cs` real) via `WebApplicationFactory<Program>`, com o `AppDbContext` trocado para **SQLite em memória** (um motor relacional de verdade, não um mock) — cobre HTTP → EF Core → banco ponta a ponta.
 
-## Por que os testes não usam o PostgreSQL local
+## Por que os testes automatizados não usam Postgres
 
-Esta máquina já tem um PostgreSQL 16 nativo rodando (serviço Windows `postgresql-x64-16`,
-porta 5432), mas exige senha (`scram-sha-256` em `pg_hba.conf`, sem trust auth). O agente
-que escreveu este backend não tem — e não tentou adivinhar — essa senha, porque é um
-Postgres que provavelmente serve outros projetos seus, não só este. Por isso os testes
-automatizados usam SQLite em memória (evidência real de execução, sem tocar em nada seu).
-Ver `handoff/CHECKPOINT.md` na raiz do repositório para mais contexto.
+Esta máquina já tem um PostgreSQL 16 **nativo** rodando (serviço Windows
+`postgresql-x64-16`, porta 5432), mas exige senha (`scram-sha-256` em `pg_hba.conf`,
+sem trust auth) que o agente não tem — e não tentou adivinhar, porque é um Postgres
+que provavelmente serve outros projetos seus, não só este. Por isso a suíte de
+testes (`dotnet test`) usa SQLite em memória: evidência real de execução, sem tocar
+em nada seu.
 
-## Rodando contra o PostgreSQL local de verdade
+Isso **não é** o mesmo caso do Postgres usado pra rodar a API de verdade — ver abaixo.
 
-1. Crie um banco e um usuário dedicados a este projeto (não reutilize um login existente):
+## Rodando contra PostgreSQL de verdade (via Docker, já verificado nesta sessão)
+
+Em vez de mexer no Postgres nativo, este projeto sobe seu **próprio** container
+Postgres isolado (`backend/docker-compose.yml`), na porta `5442` — 5432 já está
+ocupada pelo nativo, e outros projetos seus já usam 5555/5455 (`docker ps`).
+
+1. Suba o container (Docker Desktop precisa estar rodando):
 
    ```
-   "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "CREATE USER startup_empire WITH PASSWORD 'escolha-uma-senha';"
-   "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "CREATE DATABASE startup_empire OWNER startup_empire;"
+   cd backend
+   docker compose up -d
    ```
 
-2. Configure a connection string (nunca hardcode senha em arquivo versionado):
+2. Configure a connection string via user-secrets (nunca commitado — vive em
+   `%APPDATA%\Microsoft\UserSecrets\<UserSecretsId>\secrets.json`, fora do repo):
 
    ```
    cd StartupEmpire.Api
    dotnet user-secrets init
-   dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=startup_empire;Username=startup_empire;Password=escolha-uma-senha"
+   dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5442;Database=startup_empire;Username=startup_empire;Password=startup_empire_dev"
    ```
 
-   (Ou defina a variável de ambiente `ConnectionStrings__Default` com o mesmo valor.)
+   (A senha acima é a definida em `docker-compose.yml` — só vale para este container local, não é segredo real. Em produção, use uma connection string própria via variável de ambiente `ConnectionStrings__Default`.)
 
-3. Aplique a migration inicial:
+3. Aplique a migration:
 
    ```
    dotnet ef database update
    ```
 
-4. Rode a API:
+4. Rode a API **em modo Development** (só assim os user-secrets são carregados):
 
    ```
-   dotnet run
+   ASPNETCORE_ENVIRONMENT=Development dotnet run
    ```
 
    `GET /health` deve responder `{"status":"ok"}`.
+
+**Isso já foi executado e verificado nesta sessão**, de ponta a ponta, contra o
+Postgres real do container: submissão de ranking, consulta de top/rank, geração de
+código de indicação, resgate com sucesso e rejeição correta de um segundo resgate
+pelo mesmo convidado — todos confirmados também via `psql` direto no banco (não só
+pela resposta HTTP). Não é uma alegação sem evidência.
+
+Para parar o container quando não precisar mais dele: `docker compose down` (ou
+`docker compose down -v` para apagar os dados também).
 
 ## Endpoints
 
