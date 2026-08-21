@@ -36,19 +36,19 @@
 [x] 05. Time System
 [x] 06. Economy
 [x] 07. Primeiro capítulo (quarto → primeiro cliente)
-[ ] 08. Product Development (expandir além do MVP do Cap. 1)
-[ ] 09. Bugs/Testing (sistema de bugs no produto)
-[ ] 10. Customers/Sales (expandir)
-[ ] 11. Missions
+[x] 08. Product Development (DevelopmentService: dev/test/fix/launch)
+[x] 09. Bugs/Testing (bugs introduzidos por progresso, testados e corrigidos)
+[x] 10. Customers/Sales (CustomerAcquisitionService: aquisição/conversão/churn)
+[x] 11. Missions (sistema genérico + 4 missões do Cap. 1)
 [ ] 12. Upgrades
-[ ] 13. Idle
-[ ] 14. Research
+[x] 13. Idle (offline progress com teto de horas)
+[x] 14. Research (trilhas de conhecimento + LearningService — árvore completa de nós fica para expansão futura)
 [ ] 15. Employees
-[ ] 16. Company Progression
+[x] 16. Company Progression (gates Pessoa Física → Freelancer → Microempresa → Startup)
 [ ] 17. Events
 [ ] 18. Competitors
 [ ] 19. Investment
-[ ] 20. Achievements
+[x] 20. Achievements (Hello World, First Customer, MRR, Founder, Unicorn)
 [ ] 21. Premium Currency
 [ ] 22. Store
 [ ] 23. Statistics
@@ -56,7 +56,7 @@
 [ ] 25. Audio
 [ ] 26. Art polish
 [ ] 27. Android optimization
-[ ] 28. Tests (ampliar cobertura)
+[x] 28. Tests — 28 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
 [ ] 29. Balancing
 [ ] 30. APK/AAB (depende do Editor instalado — ver bloqueio)
 [ ] 31. Documentation
