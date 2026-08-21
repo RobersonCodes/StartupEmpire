@@ -4,6 +4,7 @@ using StartupEmpire.Core;
 using StartupEmpire.Domain.Tests.TestSupport;
 using StartupEmpire.Economy;
 using StartupEmpire.Missions;
+using StartupEmpire.Premium;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 using Xunit;
@@ -44,6 +45,21 @@ namespace StartupEmpire.Domain.Tests
 
             Assert.DoesNotContain("first_customer", secondRun);
             Assert.Equal(100, state.Economy.Cash);
+        }
+
+        [Fact]
+        public void EvaluateAll_GrantsGemReward_WhenMissionHasRewardGems()
+        {
+            var economy = new EconomyEngine(new EconomyConfigValues(), new FakeClock(DateTime.UtcNow), null);
+            var gemWallet = new GemWalletService(new FakeClock(DateTime.UtcNow), null);
+            var missions = Chapter1Missions.Create();
+            var service = new MissionService(missions, null, economy, gemWallet);
+            var state = new GameState(new PlayerState(), new EconomyState(0)) { Economy = { MonthlyRecurringRevenue = 1000 } };
+
+            var completed = service.EvaluateAll(state);
+
+            Assert.Contains("first_mrr", completed);
+            Assert.Equal(10, state.GemWallet.Balance);
         }
 
         [Fact]

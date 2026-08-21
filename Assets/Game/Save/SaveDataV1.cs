@@ -20,8 +20,20 @@ namespace StartupEmpire.Save
         public List<EmployeeSaveEntry> Employees = new();
         public List<CompetitorSaveEntry> Competitors = new();
         public List<string> RaisedInvestmentRounds = new();
+        public int GemBalance;
+        public List<ActiveBoostSaveEntry> ActiveBoosts = new();
+        public List<string> PurchasedCosmeticIds = new();
         public string CompanyStage = "PessoaFisica";
         public string LastSavedUtcIso;
+    }
+
+    [Serializable]
+    public sealed class ActiveBoostSaveEntry
+    {
+        public string SourceItemId;
+        public string EffectType;
+        public double Magnitude;
+        public int RemainingCycles;
     }
 
     [Serializable]

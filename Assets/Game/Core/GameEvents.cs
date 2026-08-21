@@ -155,4 +155,34 @@ namespace StartupEmpire.Core
             EquityPercentGiven = equityPercentGiven;
         }
     }
+
+    public readonly struct GemsGrantedEvent
+    {
+        public readonly int Amount;
+        public readonly string Description;
+
+        public GemsGrantedEvent(int amount, string description)
+        {
+            Amount = amount;
+            Description = description;
+        }
+    }
+
+    public readonly struct GemsSpentEvent
+    {
+        public readonly int Amount;
+        public readonly string Description;
+
+        public GemsSpentEvent(int amount, string description)
+        {
+            Amount = amount;
+            Description = description;
+        }
+    }
+
+    public readonly struct StoreItemPurchasedEvent
+    {
+        public readonly string ItemId;
+        public StoreItemPurchasedEvent(string itemId) => ItemId = itemId;
+    }
 }

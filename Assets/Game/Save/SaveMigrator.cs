@@ -22,6 +22,8 @@ namespace StartupEmpire.Save
             data.Employees ??= new List<EmployeeSaveEntry>();
             data.Competitors ??= new List<CompetitorSaveEntry>();
             data.RaisedInvestmentRounds ??= new List<string>();
+            data.ActiveBoosts ??= new List<ActiveBoostSaveEntry>();
+            data.PurchasedCosmeticIds ??= new List<string>();
 
             return data;
         }

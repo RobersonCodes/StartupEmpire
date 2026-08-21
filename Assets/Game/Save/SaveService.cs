@@ -5,8 +5,10 @@ using StartupEmpire.Core;
 using StartupEmpire.Economy;
 using StartupEmpire.Employees;
 using StartupEmpire.Investment;
+using StartupEmpire.Premium;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
+using StartupEmpire.Store;
 
 namespace StartupEmpire.Save
 {
@@ -111,6 +113,21 @@ namespace StartupEmpire.Save
             {
                 data.RaisedInvestmentRounds.Add(roundType.ToString());
             }
+
+            data.GemBalance = state.GemWallet.Balance;
+
+            foreach (var boost in state.Store.ActiveBoosts)
+            {
+                data.ActiveBoosts.Add(new ActiveBoostSaveEntry
+                {
+                    SourceItemId = boost.SourceItemId,
+                    EffectType = boost.EffectType.ToString(),
+                    Magnitude = boost.Magnitude,
+                    RemainingCycles = boost.RemainingCycles
+                });
+            }
+
+            foreach (var cosmeticId in state.Store.PurchasedCosmeticIds) data.PurchasedCosmeticIds.Add(cosmeticId);
 
             _storage.WriteRaw(SaveSerializer.Serialize(data));
         }
@@ -225,6 +242,17 @@ namespace StartupEmpire.Save
                     state.RaisedInvestmentRounds.Add(roundType);
                 }
             }
+
+            state.GemWallet.Balance = data.GemBalance;
+
+            foreach (var entry in data.ActiveBoosts)
+            {
+                if (!Enum.TryParse<StoreItemEffectType>(entry.EffectType, out var effectType)) continue;
+                state.Store.ActiveBoosts.Add(
+                    new ActiveBoost(entry.SourceItemId, effectType, entry.Magnitude, entry.RemainingCycles));
+            }
+
+            foreach (var cosmeticId in data.PurchasedCosmeticIds) state.Store.PurchasedCosmeticIds.Add(cosmeticId);
 
             return state;
         }

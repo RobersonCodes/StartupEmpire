@@ -7,10 +7,12 @@ using StartupEmpire.Events;
 using StartupEmpire.Idle;
 using StartupEmpire.Investment;
 using StartupEmpire.Missions;
+using StartupEmpire.Premium;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
 using StartupEmpire.Research;
 using StartupEmpire.Save;
+using StartupEmpire.Store;
 using StartupEmpire.Upgrades;
 
 namespace StartupEmpire.Core
@@ -41,6 +43,8 @@ namespace StartupEmpire.Core
         public CompetitorService Competitors { get; private set; }
         public CompetitorDefinitionCatalog CompetitorCatalog { get; private set; }
         public InvestmentService Investment { get; private set; }
+        public GemWalletService Gems { get; private set; }
+        public StoreService Store { get; private set; }
 
         private EconomyConfigValues _economyConfig;
         private float _autosaveTimer;
@@ -70,7 +74,8 @@ namespace StartupEmpire.Core
             Development = new DevelopmentService(new DevelopmentConfigValues(), EventBus);
             CustomerAcquisition = new CustomerAcquisitionService(new CustomerAcquisitionConfigValues(), EventBus);
             Progression = new ProgressionService(EventBus);
-            Missions = new MissionService(Chapter1Missions.Create(), EventBus, Economy);
+            Gems = new GemWalletService(clock, EventBus);
+            Missions = new MissionService(Chapter1Missions.Create(), EventBus, Economy, Gems);
             Achievements = new AchievementService(AchievementCatalog.Create(), EventBus);
             Learning = new LearningService(new LearningConfigValues());
             Idle = new IdleService(new OfflineProgressCalculator(_economyConfig), clock, EventBus);
@@ -81,6 +86,7 @@ namespace StartupEmpire.Core
             Competitors = new CompetitorService(new CompetitorConfigValues());
             CompetitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
             Investment = new InvestmentService(InvestmentCatalog.CreateDefaultCatalog(), Economy, EventBus);
+            Store = new StoreService(StoreCatalog.CreateChapter1Catalog(), Gems, Economy, EventBus);
 
             var storage = new FileSaveStorage();
             Save = new SaveService(storage, clock, Catalog, EmployeeCatalog, CompetitorCatalog);
@@ -122,7 +128,8 @@ namespace StartupEmpire.Core
         public void RunGameCycle(int cycles = 1)
         {
             var acquisitionMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.AcquisitionRateMultiplier, State.Upgrades)
-                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Marketing);
+                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Marketing)
+                * Store.GetBoostMultiplier(State.Store, StoreItemEffectType.AcquisitionBoost);
 
             foreach (var product in State.Products)
             {
@@ -132,6 +139,8 @@ namespace StartupEmpire.Core
             Economy.RecomputeValuation(State.Economy);
 
             Hiring.PaySalaries(State.Employees, State.Economy);
+
+            Store.TickBoosts(State.Store, cycles);
 
             Competitors.RunCycle(State.Competitors, cycles);
             var playerUsers = 0.0;
@@ -166,7 +175,8 @@ namespace StartupEmpire.Core
         {
             var devSpeedMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.DevSpeedMultiplier, State.Upgrades)
                 * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Backend)
-                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Frontend);
+                * Hiring.GetProductivityMultiplier(State.Employees, EmployeeRole.Frontend)
+                * Store.GetBoostMultiplier(State.Store, StoreItemEffectType.DevSpeedBoost);
             var bugRateMultiplier = Upgrades.GetMultiplier(UpgradeEffectType.BugRateReduction, State.Upgrades);
             Development.Develop(product, State.Player, knowledgeTrack, cycles, devSpeedMultiplier, bugRateMultiplier);
         }
@@ -188,6 +198,12 @@ namespace StartupEmpire.Core
             var definition = EmployeeCatalog.Find(employeeDefinitionId);
             if (definition == null) return false;
             return Hiring.TryHire(State.Employees, State.Economy, definition) != null;
+        }
+
+        public bool PurchaseStoreItem(string storeItemId)
+        {
+            var item = Store.Find(storeItemId);
+            return item != null && Store.TryPurchase(State, item);
         }
 
         private void OnApplicationPause(bool pauseStatus)

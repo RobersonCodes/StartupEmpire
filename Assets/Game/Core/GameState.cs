@@ -5,8 +5,10 @@ using StartupEmpire.Economy;
 using StartupEmpire.Employees;
 using StartupEmpire.Investment;
 using StartupEmpire.Missions;
+using StartupEmpire.Premium;
 using StartupEmpire.Products;
 using StartupEmpire.Progression;
+using StartupEmpire.Store;
 using StartupEmpire.Upgrades;
 
 namespace StartupEmpire.Core
@@ -24,6 +26,8 @@ namespace StartupEmpire.Core
         public EmployeeRoster Employees { get; } = new();
         public List<CompetitorState> Competitors { get; } = new();
         public HashSet<InvestmentRoundType> RaisedInvestmentRounds { get; } = new();
+        public GemWalletState GemWallet { get; } = new();
+        public StoreState Store { get; } = new();
         public DateTime LastSavedUtc { get; set; }
 
         public GameState(PlayerState player, EconomyState economy)
