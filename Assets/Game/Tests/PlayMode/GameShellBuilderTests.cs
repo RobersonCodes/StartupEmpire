@@ -107,5 +107,72 @@ namespace StartupEmpire.Tests.PlayMode
             var employeesAfter = GameRoot.Instance.State.Employees.Employees.Count;
             Assert.AreEqual(employeesBefore + 1, employeesAfter);
         }
+
+        [UnityTest]
+        public IEnumerator NewScreens_AreReachable_ViaNavBar()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            GameObject.Find("Button_Research").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var researchText = GameObject.Find("ResearchText").GetComponent<Text>();
+            StringAssert.Contains("CONHECIMENTO", researchText.text);
+
+            GameObject.Find("Button_Company").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var companyText = GameObject.Find("CompanyText").GetComponent<Text>();
+            StringAssert.Contains("EMPRESA", companyText.text);
+            StringAssert.Contains("CONCORRENTES", companyText.text);
+
+            GameObject.Find("Button_Character").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var characterText = GameObject.Find("CharacterText").GetComponent<Text>();
+            StringAssert.Contains("PERFIL", characterText.text);
+        }
+
+        [UnityTest]
+        public IEnumerator EventModal_AppearsWhenEventTriggers_AndResolvingHidesIt()
+        {
+            new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
+            yield return null;
+
+            // Os eventos do capítulo 1 só ficam elegíveis depois que existe um
+            // produto lançado ou um cliente pagante.
+            GameRoot.Instance.Development.Launch(GameRoot.Instance.State.Products[0]);
+
+            // BaseTriggerChancePerCycle é 5% por ciclo; 300 ciclos deixa a chance de
+            // nenhum evento disparar em torno de 0,95^300 ≈ 0,00002%.
+            var triggered = false;
+            for (var i = 0; i < 300 && !triggered; i++)
+            {
+                GameRoot.Instance.RunGameCycle(1);
+                if (GameRoot.Instance.PendingEvent != null) triggered = true;
+            }
+            Assert.IsTrue(triggered, "Nenhum evento disparou em 300 ciclos — muito improvável, verificar EventService");
+
+            var pendingEvent = GameRoot.Instance.PendingEvent;
+            for (var i = 0; i < 300; i++) GameRoot.Instance.RunGameCycle(1);
+            Assert.AreSame(pendingEvent, GameRoot.Instance.PendingEvent,
+                "Um evento sem resposta não deve ser substituído por ciclos posteriores");
+
+            yield return null;
+
+            var modalGo = GameObject.Find("EventModal");
+            Assert.IsNotNull(modalGo);
+            Assert.IsTrue(modalGo.activeInHierarchy, "O modal deveria estar visível com um evento pendente");
+
+            var titleGo = GameObject.Find("EventTitle");
+            Assert.IsFalse(string.IsNullOrEmpty(titleGo.GetComponent<Text>().text));
+
+            var firstChoiceLabel = GameRoot.Instance.PendingEvent.Choices[0].Label;
+            var choiceButtonGo = GameObject.Find($"Button_{firstChoiceLabel}");
+            Assert.IsNotNull(choiceButtonGo, $"Botão da escolha '{firstChoiceLabel}' não foi encontrado");
+            choiceButtonGo.GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            Assert.IsNull(GameRoot.Instance.PendingEvent, "PendingEvent deveria ter sido limpo depois de resolver a escolha");
+            Assert.IsFalse(modalGo.activeInHierarchy, "O modal deveria se esconder depois do evento resolvido");
+        }
     }
 }

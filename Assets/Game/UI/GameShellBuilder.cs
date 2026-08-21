@@ -15,6 +15,7 @@ namespace StartupEmpire.UI
     {
         private Text _topBarText;
         private ScreenManager _screenManager;
+        private EventModalBuilder _eventModal;
         private readonly Dictionary<string, IScreenPanel> _panelsById = new();
 
         private void Start()
@@ -42,8 +43,14 @@ namespace StartupEmpire.UI
             RegisterPanel("Achievements", new AchievementsScreenPanel(), contentGo.transform);
             RegisterPanel("Missions", new MissionsScreenPanel(), contentGo.transform);
             RegisterPanel("Settings", new SettingsScreenPanel(), contentGo.transform);
+            RegisterPanel("Research", new ResearchScreenPanel(), contentGo.transform);
+            RegisterPanel("Company", new CompanyScreenPanel(), contentGo.transform);
+            RegisterPanel("Character", new CharacterScreenPanel(), contentGo.transform);
 
             BuildNavBar(root.transform);
+
+            _eventModal = new EventModalBuilder();
+            _eventModal.Build(canvas.transform);
 
             ShowScreen("Office");
         }
@@ -67,6 +74,8 @@ namespace StartupEmpire.UI
             _topBarText.text =
                 $"Caixa: R$ {state.Economy.Cash:F0}   Valuation: R$ {state.Economy.Valuation:F0}   " +
                 $"Gems: {state.GemWallet.Balance}   {state.Stage}";
+
+            _eventModal.Tick();
         }
 
         private void BuildNavBar(Transform parent)
@@ -74,8 +83,16 @@ namespace StartupEmpire.UI
             var navGo = UiFactory.CreatePanel(parent, UiFactory.NavBarColor, "NavBar");
             UiFactory.Stretch(navGo.GetComponent<RectTransform>(), new Vector2(0, 0), new Vector2(1, 0.095f));
 
-            var labels = new[] { "Office", "Products", "Employees", "Upgrades", "Store", "Finances", "Stats", "Achv", "Missions", "Settings" };
-            var ids = new[] { "Office", "Products", "Employees", "Upgrades", "Store", "Finances", "Statistics", "Achievements", "Missions", "Settings" };
+            var labels = new[]
+            {
+                "Office", "Products", "Employees", "Upgrades", "Store", "Finances",
+                "Stats", "Achv", "Missions", "Research", "Company", "Character", "Settings"
+            };
+            var ids = new[]
+            {
+                "Office", "Products", "Employees", "Upgrades", "Store", "Finances",
+                "Statistics", "Achievements", "Missions", "Research", "Company", "Character", "Settings"
+            };
 
             var width = 1f / labels.Length;
             for (var i = 0; i < labels.Length; i++)

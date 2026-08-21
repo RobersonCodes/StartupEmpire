@@ -177,7 +177,13 @@ namespace StartupEmpire.Core
             Missions.EvaluateAll(State);
             Achievements.EvaluateAll(State);
 
-            PendingEvent = Events.TryTriggerRandomEvent(State);
+            // Só sorteia um evento novo se não houver um pendente ainda sem resposta —
+            // caso contrário, um evento não resolvido seria descartado silenciosamente
+            // no próximo ciclo antes do jogador conseguir escolher.
+            if (PendingEvent == null)
+            {
+                PendingEvent = Events.TryTriggerRandomEvent(State);
+            }
         }
 
         public bool AcceptInvestmentOffer(InvestmentRoundType roundType)

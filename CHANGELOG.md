@@ -105,6 +105,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - `Object.Destroy()` entre dois `[UnityTest]` é ambíguo o suficiente em timing para o singleton do teste anterior (`GameRoot`/`AudioManager`) ainda existir quando o `Awake()` do próximo teste rodava, fazendo o novo `GameObject` se autodestruir antes do `Start()` montar a UI — 2 de 4 testes falhavam. Corrigido com `Object.DestroyImmediate` num `[UnityTearDown]` garantido.
 - Bug no próprio teste (não no jogo): tentava `GameObject.Find` num objeto já inativo (`SetActive(false)` depois de trocar de tela). `Find` não acha objetos inativos — corrigido capturando a referência antes da troca.
 
+### Added (continuação — Research, Company, Character e Events)
+- Telas `ResearchScreenPanel`, `CompanyScreenPanel` e `CharacterScreenPanel`, ligadas respectivamente às 11 trilhas de conhecimento, ao estado/equity/rodadas/concorrentes da empresa e ao perfil/submissão offline-safe de ranking.
+- `EventModalBuilder`: overlay sobre qualquer tela que exibe título, descrição e todas as escolhas do `PendingEvent`, aplicando a consequência real por `GameRoot.ResolveEvent`.
+- 2 novos testes PlayMode: navegação para as três novas telas e fluxo completo de disparar/responder um evento real. Resultado verificado: 6/6 PlayMode passando.
+
+### Fixed (continuação)
+- `GameRoot.RunGameCycle` podia descartar um evento ainda sem resposta ao sobrescrever `PendingEvent` no ciclo seguinte. Agora só sorteia outro evento quando não existe um pendente; o teste executa 300 ciclos adicionais e confirma que a mesma instância permanece até a escolha.
+- O primeiro teste do modal assumia que 300 sorteios bastavam, mas nenhum evento era elegível enquanto o produto continuava em `Planning`. O cenário agora lança o produto pela API real antes do sorteio.
+
 ### Known limitations
 - Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
