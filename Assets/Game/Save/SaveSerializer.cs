@@ -1,27 +1,26 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace StartupEmpire.Save
 {
-    /// Isolado atrás de uma classe própria: se o runtime do Unity Editor instalado
-    /// não incluir System.Text.Json, basta trocar a implementação interna por
-    /// Newtonsoft.Json (pacote com.unity.nuget.newtonsoft-json) sem tocar no
-    /// restante do save system.
+    /// Isolado atrás de uma classe própria por design. Já trocou de implementação
+    /// uma vez: começou com System.Text.Json (funcionava no `dotnet test`, mas o
+    /// Unity Editor não tem esse namespace disponível no perfil de API padrão —
+    /// erro CS0234 confirmado na primeira compilação real no Editor). Agora usa
+    /// Newtonsoft.Json (pacote com.unity.nuget.newtonsoft-json no Unity, pacote
+    /// NuGet Newtonsoft.Json no Tests.NET), que roda nos dois ambientes.
     public static class SaveSerializer
     {
-        private static readonly JsonSerializerOptions Options = new()
+        private static readonly JsonSerializerSettings Settings = new()
         {
-            WriteIndented = false,
-            // SaveDataV1 usa campos públicos (compatível com UnityEngine.JsonUtility);
-            // System.Text.Json só serializa propriedades por padrão, então isso é obrigatório.
-            IncludeFields = true
+            Formatting = Formatting.None
         };
 
-        public static string Serialize(SaveDataV1 data) => JsonSerializer.Serialize(data, Options);
+        public static string Serialize(SaveDataV1 data) => JsonConvert.SerializeObject(data, Settings);
 
         public static SaveDataV1 Deserialize(string json)
         {
             if (string.IsNullOrWhiteSpace(json)) return null;
-            return JsonSerializer.Deserialize<SaveDataV1>(json, Options);
+            return JsonConvert.DeserializeObject<SaveDataV1>(json, Settings);
         }
     }
 }
