@@ -88,6 +88,21 @@
     <Compile Include="..\Assets\Game\Store\StoreCatalog.cs" Link="Domain\Store\StoreCatalog.cs" />
     <Compile Include="..\Assets\Game\Store\StoreService.cs" Link="Domain\Store\StoreService.cs" />
 
+    <!-- Ranking/Referrals: só os arquivos puros (sem UnityEngine) são linkados aqui.
+         HttpRankingClient.cs, HttpReferralClient.cs e UnityWebRequestAsync.cs dependem
+         de UnityWebRequest/JsonUtility e só compilam dentro do Unity Editor. -->
+    <Compile Include="..\Assets\Game\Ranking\RankingSubmission.cs" Link="Domain\Ranking\RankingSubmission.cs" />
+    <Compile Include="..\Assets\Game\Ranking\RankingEntryDto.cs" Link="Domain\Ranking\RankingEntryDto.cs" />
+    <Compile Include="..\Assets\Game\Ranking\IRankingClient.cs" Link="Domain\Ranking\IRankingClient.cs" />
+    <Compile Include="..\Assets\Game\Ranking\NullRankingClient.cs" Link="Domain\Ranking\NullRankingClient.cs" />
+    <Compile Include="..\Assets\Game\Ranking\RankingClientService.cs" Link="Domain\Ranking\RankingClientService.cs" />
+
+    <Compile Include="..\Assets\Game\Referrals\ReferralCodeDto.cs" Link="Domain\Referrals\ReferralCodeDto.cs" />
+    <Compile Include="..\Assets\Game\Referrals\ReferralRedemptionResultDto.cs" Link="Domain\Referrals\ReferralRedemptionResultDto.cs" />
+    <Compile Include="..\Assets\Game\Referrals\IReferralClient.cs" Link="Domain\Referrals\IReferralClient.cs" />
+    <Compile Include="..\Assets\Game\Referrals\NullReferralClient.cs" Link="Domain\Referrals\NullReferralClient.cs" />
+    <Compile Include="..\Assets\Game\Referrals\ReferralClientService.cs" Link="Domain\Referrals\ReferralClientService.cs" />
+
     <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />
