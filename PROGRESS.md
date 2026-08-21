@@ -36,7 +36,8 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Events — sistema data-driven com escolhas e consequências reais (Servidor caiu, Bug crítico, Cliente importante)
 - [COMPLETED] Competitors — 2 concorrentes simulados (RivalTech, MegaCorp Software) com crescimento por taxa fixa e participação de mercado recalculada por ciclo; sem IA pesada
 - [COMPLETED] Investment — rodadas Angel/Seed/Series A/B/C com elegibilidade por estágio e valuation, diluição real e composta de FounderEquity (Ipo modelado no enum, sem oferta própria ainda — é o estágio final de CompanyStage, não uma troca caixa-por-equity)
-- [PENDING] Premium currency / Store
+- [COMPLETED] Premium currency (Gems) — GemWalletState/GemWalletService com saldo, ledger, grant/spend; sem conexão a pagamento real ainda (arquitetura pronta para Google Play Billing depois)
+- [COMPLETED] Store — 4 itens do Capítulo 1 (boost de dev, boost de aquisição, aporte de caixa instantâneo, cosmético), efeitos sempre visíveis antes da compra, cosméticos não podem ser recomprados
 - [PENDING] Ad service abstraction
 - [PENDING] Ranking/backend
 - [PENDING] Referrals
@@ -47,13 +48,14 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` — 56 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (3), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5).
+- [COMPLETED] `Tests.NET` — 67 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (7), ProgressionService (2), Missions/Achievements (4), UpgradeService (5), HiringService (6), EventService (4), LearningService (2), CompetitorService (4), InvestmentService (5), GemWalletService (4), StoreService (6).
 - [PENDING] Unity Test Framework (PlayMode/EditMode) — aguarda instalação do Editor. Os mesmos arquivos-fonte já compilam para isso; nenhuma reescrita será necessária.
 
 ## Bugs reais encontrados e corrigidos nesta sessão
 
 1. `SaveSerializer` usava `System.Text.Json` com `SaveDataV1` baseado em campos públicos (para manter compatibilidade futura com `UnityEngine.JsonUtility`). `System.Text.Json` por padrão só serializa **propriedades**, não campos — o teste `SaveThenLoad_RoundTripsGameState` pegou isso na primeira execução (nome do jogador voltava sempre como "Founder"). Corrigido com `JsonSerializerOptions.IncludeFields = true`.
 2. O `.gitignore` tinha um padrão genérico `*.csproj` (para ignorar `.csproj` gerados pelo Unity/Visual Studio) que também estava excluindo silenciosamente `Tests.NET/StartupEmpire.Domain.Tests.csproj` — um arquivo escrito à mão, não gerado. Os dois commits anteriores de teste incluíram os arquivos `.cs` mas nunca o `.csproj` em si; `dotnet test` continuava funcionando localmente porque o arquivo existia em disco, mas um `git clone` limpo ficaria sem o projeto. Corrigido com uma exceção `!Tests.NET/**/*.csproj` no `.gitignore`.
+3. `MissionDefinition.RewardGems` existia desde o Capítulo 1 (a missão "MRR" já tinha `rewardGems: 10`), mas `MissionService.EvaluateAll` nunca chegou a conceder gems — só cash. O campo ficava sem efeito silenciosamente. Corrigido ao implementar Gems: `MissionService` agora recebe um `GemWalletService` opcional e concede `RewardGems` junto com `RewardCash`, coberto por um teste novo (`EvaluateAll_GrantsGemReward_WhenMissionHasRewardGems`).
 
 ## Nota sobre veracidade dos resultados
 

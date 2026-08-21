@@ -49,14 +49,14 @@
 [x] 18. Competitors (2 concorrentes simulados, crescimento simples, participação de mercado)
 [x] 19. Investment (Angel/Seed/Series A/B/C com diluição real de equity; Ipo pendente de mecânica própria)
 [x] 20. Achievements (Hello World, First Customer, MRR, Founder, Unicorn)
-[ ] 21. Premium Currency
-[ ] 22. Store
+[x] 21. Premium Currency (Gems: saldo, ledger, grant/spend, pronto para Play Billing depois)
+[x] 22. Store (boost de dev, boost de aquisição, aporte instantâneo, cosmético — sem mecânica predatória)
 [ ] 23. Statistics
 [ ] 24. UI final
 [ ] 25. Audio
 [ ] 26. Art polish
 [ ] 27. Android optimization
-[x] 28. Tests — 56 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
+[x] 28. Tests — 67 testes reais via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
 [ ] 29. Balancing
 [ ] 30. APK/AAB (depende do Editor instalado — ver bloqueio)
 [ ] 31. Documentation
