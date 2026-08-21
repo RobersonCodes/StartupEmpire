@@ -15,5 +15,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Fixed
 - `SaveSerializer` não restaurava corretamente os dados do save porque `System.Text.Json` não serializa campos públicos por padrão (apenas propriedades), e `SaveDataV1` usa campos. Corrigido com `JsonSerializerOptions.IncludeFields = true`. Bug capturado pelo teste `SaveThenLoad_RoundTripsGameState`.
 
+### Added (continuação — Upgrades, Employees, Events)
+- `Upgrades`: `UpgradeDefinition`/`UpgradeState`/`UpgradeService` com catálogo do Capítulo 1 (Computador Melhor, Internet Melhor, Ferramentas de Produtividade, Cursos Online) — custo cresce por nível (`BaseCost * CostGrowthFactor^level`), efeitos agregados como multiplicadores (dev speed, redução de bugs, aquisição, ganho de conhecimento).
+- `Employees`: `EmployeeDefinition`/`Employee`/`EmployeeRoster`/`HiringService` com os 10 cargos da seção 11 (Backend, Frontend, Mobile, Design, QA, DevOps, PM, Marketing, Sales, Support), contratação, demissão, folha de pagamento (satisfação cai se não há caixa para pagar, sobe e ganha experiência quando paga) e multiplicador de produtividade agregado por cargo.
+- `Events`: `GameEventDefinition`/`EventService` com sorteio por chance configurável e resolução de escolhas com consequências reais; catálogo do Capítulo 1 com os 3 eventos de exemplo da seção 14 (Servidor caiu, Bug crítico em produção, Cliente importante).
+- `GameRoot` agora expõe `DevelopProduct`, `StudyTrack`, `PurchaseUpgrade`, `HireEmployee`, `ResolveEvent` e dispara `PendingEvent` a cada `RunGameCycle`, todos já considerando os multiplicadores de Upgrades/Employees.
+- Persistência de Upgrades e Employees no save (`SaveDataV1.UpgradeLevels`/`Employees`, com migração e produtos/funcionários órfãos ignorados com segurança).
+- 18 novos testes reais (`UpgradeServiceTests`, `HiringServiceTests`, `EventServiceTests`, `LearningServiceTests`, mais 2 em `SaveServiceTests`) — suíte total: 46/46 passando.
+
+### Fixed (continuação)
+- `.gitignore` tinha um `*.csproj` genérico que excluía silenciosamente `Tests.NET/StartupEmpire.Domain.Tests.csproj` (hand-authored, não gerado). Os dois commits de teste anteriores nunca incluíram o `.csproj`. Corrigido com `!Tests.NET/**/*.csproj`.
+
 ### Known limitations
 - Unity Editor e Android SDK não estão instalados nesta máquina (bloqueio de ambiente — ver `PROJECT-PLAN.md`); UI de telas, áudio, arte final e build Android (APK/AAB) ainda não foram implementados/gerados.

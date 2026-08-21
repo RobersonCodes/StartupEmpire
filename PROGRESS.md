@@ -31,10 +31,9 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 - [COMPLETED] Achievements — Hello World, First Customer, MRR, Founder, Unicorn
 - [COMPLETED] Progression — gates Pessoa Física → Freelancer → Microempresa → Startup
 - [COMPLETED] Research — trilhas de conhecimento (constantes) + LearningService
-- [PENDING] Upgrades
-- [PENDING] Employees
-- [PENDING] Research
-- [PENDING] Events
+- [COMPLETED] Upgrades — computador, internet, ferramentas de produtividade, cursos online; custo cresce por nível, multiplicadores agregados por efeito
+- [COMPLETED] Employees — 10 cargos (seção 11), contratação, demissão, folha de pagamento com satisfação/experiência, multiplicador de produtividade por cargo
+- [COMPLETED] Events — sistema data-driven com escolhas e consequências reais (Servidor caiu, Bug crítico, Cliente importante)
 - [PENDING] Competitors
 - [PENDING] Investment
 - [PENDING] Premium currency / Store
@@ -48,12 +47,13 @@ Legenda: `[COMPLETED]` `[IN PROGRESS]` `[PENDING]` `[BLOCKED]`
 
 ## Testes
 
-- [COMPLETED] `Tests.NET` — 28 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (4), ProgressionService (2), Missions/Achievements (3).
+- [COMPLETED] `Tests.NET` — 46 testes reais sobre a camada de domínio, executados via `dotnet test` nesta máquina (0 falhas). Cobrem: EconomyEngine (5), DevelopmentService (6), CustomerAcquisitionService (3), OfflineProgress/Idle (5), SaveService (6), ProgressionService (2), Missions/Achievements (3), UpgradeService (5), HiringService (6), EventService (4), LearningService (2).
 - [PENDING] Unity Test Framework (PlayMode/EditMode) — aguarda instalação do Editor. Os mesmos arquivos-fonte já compilam para isso; nenhuma reescrita será necessária.
 
-## Bug real encontrado e corrigido nesta sessão
+## Bugs reais encontrados e corrigidos nesta sessão
 
-`SaveSerializer` usava `System.Text.Json` com `SaveDataV1` baseado em campos públicos (para manter compatibilidade futura com `UnityEngine.JsonUtility`). `System.Text.Json` por padrão só serializa **propriedades**, não campos — o teste `SaveThenLoad_RoundTripsGameState` pegou isso na primeira execução (nome do jogador voltava sempre como "Founder"). Corrigido com `JsonSerializerOptions.IncludeFields = true`. Suite voltou a 28/28 depois da correção.
+1. `SaveSerializer` usava `System.Text.Json` com `SaveDataV1` baseado em campos públicos (para manter compatibilidade futura com `UnityEngine.JsonUtility`). `System.Text.Json` por padrão só serializa **propriedades**, não campos — o teste `SaveThenLoad_RoundTripsGameState` pegou isso na primeira execução (nome do jogador voltava sempre como "Founder"). Corrigido com `JsonSerializerOptions.IncludeFields = true`.
+2. O `.gitignore` tinha um padrão genérico `*.csproj` (para ignorar `.csproj` gerados pelo Unity/Visual Studio) que também estava excluindo silenciosamente `Tests.NET/StartupEmpire.Domain.Tests.csproj` — um arquivo escrito à mão, não gerado. Os dois commits anteriores de teste incluíram os arquivos `.cs` mas nunca o `.csproj` em si; `dotnet test` continuava funcionando localmente porque o arquivo existia em disco, mas um `git clone` limpo ficaria sem o projeto. Corrigido com uma exceção `!Tests.NET/**/*.csproj` no `.gitignore`.
 
 ## Nota sobre veracidade dos resultados
 
