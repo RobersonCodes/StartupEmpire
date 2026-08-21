@@ -109,6 +109,9 @@
     <Compile Include="..\Assets\Game\Ads\AdConfigValues.cs" Link="Domain\Ads\AdConfigValues.cs" />
     <Compile Include="..\Assets\Game\Ads\AdRewardService.cs" Link="Domain\Ads\AdRewardService.cs" />
 
+    <Compile Include="..\Assets\Game\Statistics\StatisticsSnapshot.cs" Link="Domain\Statistics\StatisticsSnapshot.cs" />
+    <Compile Include="..\Assets\Game\Statistics\StatisticsService.cs" Link="Domain\Statistics\StatisticsService.cs" />
+
     <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />

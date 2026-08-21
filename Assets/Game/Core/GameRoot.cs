@@ -16,6 +16,7 @@ using StartupEmpire.Ranking;
 using StartupEmpire.Referrals;
 using StartupEmpire.Research;
 using StartupEmpire.Save;
+using StartupEmpire.Statistics;
 using StartupEmpire.Store;
 using StartupEmpire.Upgrades;
 
@@ -50,6 +51,7 @@ namespace StartupEmpire.Core
         public GemWalletService Gems { get; private set; }
         public StoreService Store { get; private set; }
         public AdRewardService Ads { get; private set; }
+        public StatisticsService Statistics { get; private set; }
         public RankingClientService Ranking { get; private set; }
         public ReferralClientService Referrals { get; private set; }
 
@@ -99,6 +101,7 @@ namespace StartupEmpire.Core
             Events = new EventService(EventCatalog.CreateChapter1Catalog(), new EventConfigValues(), Economy, EventBus);
             Competitors = new CompetitorService(new CompetitorConfigValues());
             CompetitorCatalog = CompetitorDefinitionCatalog.CreateChapter1Catalog();
+            Statistics = new StatisticsService(Competitors);
             Investment = new InvestmentService(InvestmentCatalog.CreateDefaultCatalog(), Economy, EventBus);
             Store = new StoreService(StoreCatalog.CreateChapter1Catalog(), Gems, Economy, EventBus);
 
@@ -231,6 +234,8 @@ namespace StartupEmpire.Core
 
         public void WatchRewardedAd(System.Action<AdRewardResult> onComplete) =>
             Ads.RequestRewardedGems(State.GemWallet, onComplete);
+
+        public StatisticsSnapshot GetStatistics() => Statistics.BuildSnapshot(State);
 
         /// Nunca lança e nunca bloqueia o jogo se o backend estiver fora do ar
         /// (RankingClientService já engole falhas de rede internamente).
