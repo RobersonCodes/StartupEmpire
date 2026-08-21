@@ -53,11 +53,11 @@
 [x] 21. Premium Currency (Gems: saldo, ledger, grant/spend, pronto para Play Billing depois)
 [x] 22. Store (boost de dev, boost de aquisição, aporte instantâneo, cosmético — sem mecânica predatória)
 [x] 23. Statistics — StatisticsService agrega o GameState num snapshot legível (telas in-game ficam para a etapa de UI)
-[~] 24. UI final (1/19 telas: Office/hub jogável, construída em runtime, testada em PlayMode)
+[~] 24. UI final (10/19 telas: Office, Products, Employees, Upgrades, Store, Finances, Statistics, Achievements, Missions, Settings — navegação real entre elas, testada em PlayMode)
 [x] 25. Audio (AudioManager com volume independente por categoria; sem clipes — nenhum áudio original disponível ainda)
 [ ] 26. Art polish (visual atual é placeholder funcional)
 [ ] 27. Android optimization
-[x] 28. Tests — 82 testes reais do cliente + 22 do backend via `dotnet test` (ampliar cobertura conforme novos sistemas chegam; Unity Test Framework pendente do Editor)
+[x] 28. Tests — 87 `.NET` + 24 EditMode + 4 PlayMode (115 reais no cliente) + 22 no backend
 [ ] 29. Balancing
 [x] 30. APK/AAB — **APK de debug real gerado**: `Builds/Android/StartupEmpire-debug.apk`, 32.189.060 bytes, build IL2CPP+Gradle real (result=Succeeded, 0 erros, 0 avisos, ~5m44s). AAB (formato de publicação) ainda não gerado.
 [ ] 31. Documentation

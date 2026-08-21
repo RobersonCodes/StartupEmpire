@@ -94,6 +94,17 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 - `OfficeScreenBuilder` criava o `Canvas` como GameObject raiz desconectado de `GameRoot`, então destruir o `GameRoot` nunca limpava a UI — um teste PlayMode pegou isso na primeira execução (segundo teste encontrava o botão órfão do primeiro, com listener já morto). Corrigido parentando o `Canvas` sob o `transform` do `GameRoot`.
 - `AndroidBuilder.cs` não compilou de primeira: faltava `using UnityEditor.Build;` para `NamedBuildTarget`. Corrigido e recompilado antes do build real.
 
+### Added (continuação — 9 telas novas, navegação real)
+- `UiFactory`: helpers compartilhados de painel/texto/botão, usados por todas as telas (visual placeholder consistente — cores sólidas, sem direção de arte própria ainda).
+- `ScreenManager`: mostra uma tela por vez dentro de uma área de conteúdo compartilhada.
+- `GameShellBuilder`: substitui o antigo `OfficeScreenBuilder` monolítico — Canvas, barra de status no topo (caixa/valuation/gems/estágio, atualizada a cada frame), barra de navegação embaixo com 10 botões, área de conteúdo onde `ScreenManager` alterna as telas.
+- 9 telas novas como `IScreenPanel` (`Assets/Game/UI/Screens/`), cada uma só lendo `GameRoot`/chamando sua API existente, sem lógica de negócio própria: `ProductsScreenPanel`, `EmployeesScreenPanel` (contratar), `UpgradesScreenPanel` (comprar), `StoreScreenPanel` (gastar gems), `FinancesScreenPanel` (aceitar investimento), `StatisticsScreenPanel`, `AchievementsScreenPanel`, `MissionsScreenPanel`, `SettingsScreenPanel` (liga no `AudioManager`, agora também instanciado na cena gerada).
+- 3 novos testes PlayMode reais (navegação entre telas, contratação pela UI) — total agora 4/4 PlayMode.
+
+### Fixed (continuação)
+- `Object.Destroy()` entre dois `[UnityTest]` é ambíguo o suficiente em timing para o singleton do teste anterior (`GameRoot`/`AudioManager`) ainda existir quando o `Awake()` do próximo teste rodava, fazendo o novo `GameObject` se autodestruir antes do `Start()` montar a UI — 2 de 4 testes falhavam. Corrigido com `Object.DestroyImmediate` num `[UnityTearDown]` garantido.
+- Bug no próprio teste (não no jogo): tentava `GameObject.Find` num objeto já inativo (`SetActive(false)` depois de trocar de tela). `Find` não acha objetos inativos — corrigido capturando a referência antes da troca.
+
 ### Known limitations
 - Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.
