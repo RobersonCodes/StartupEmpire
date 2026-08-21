@@ -76,6 +76,18 @@
     <Compile Include="..\Assets\Game\Investment\InvestmentCatalog.cs" Link="Domain\Investment\InvestmentCatalog.cs" />
     <Compile Include="..\Assets\Game\Investment\InvestmentService.cs" Link="Domain\Investment\InvestmentService.cs" />
 
+    <Compile Include="..\Assets\Game\Premium\GemLedgerEntry.cs" Link="Domain\Premium\GemLedgerEntry.cs" />
+    <Compile Include="..\Assets\Game\Premium\GemWalletState.cs" Link="Domain\Premium\GemWalletState.cs" />
+    <Compile Include="..\Assets\Game\Premium\GemWalletService.cs" Link="Domain\Premium\GemWalletService.cs" />
+
+    <Compile Include="..\Assets\Game\Store\StoreItemCategory.cs" Link="Domain\Store\StoreItemCategory.cs" />
+    <Compile Include="..\Assets\Game\Store\StoreItemEffectType.cs" Link="Domain\Store\StoreItemEffectType.cs" />
+    <Compile Include="..\Assets\Game\Store\StoreItemDefinition.cs" Link="Domain\Store\StoreItemDefinition.cs" />
+    <Compile Include="..\Assets\Game\Store\ActiveBoost.cs" Link="Domain\Store\ActiveBoost.cs" />
+    <Compile Include="..\Assets\Game\Store\StoreState.cs" Link="Domain\Store\StoreState.cs" />
+    <Compile Include="..\Assets\Game\Store\StoreCatalog.cs" Link="Domain\Store\StoreCatalog.cs" />
+    <Compile Include="..\Assets\Game\Store\StoreService.cs" Link="Domain\Store\StoreService.cs" />
+
     <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />
