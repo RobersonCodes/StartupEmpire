@@ -65,6 +65,17 @@
     <Compile Include="..\Assets\Game\Events\EventCatalog.cs" Link="Domain\Events\EventCatalog.cs" />
     <Compile Include="..\Assets\Game\Events\EventService.cs" Link="Domain\Events\EventService.cs" />
 
+    <Compile Include="..\Assets\Game\Competitors\CompetitorDefinition.cs" Link="Domain\Competitors\CompetitorDefinition.cs" />
+    <Compile Include="..\Assets\Game\Competitors\CompetitorState.cs" Link="Domain\Competitors\CompetitorState.cs" />
+    <Compile Include="..\Assets\Game\Competitors\CompetitorConfigValues.cs" Link="Domain\Competitors\CompetitorConfigValues.cs" />
+    <Compile Include="..\Assets\Game\Competitors\CompetitorDefinitionCatalog.cs" Link="Domain\Competitors\CompetitorDefinitionCatalog.cs" />
+    <Compile Include="..\Assets\Game\Competitors\CompetitorService.cs" Link="Domain\Competitors\CompetitorService.cs" />
+
+    <Compile Include="..\Assets\Game\Investment\InvestmentRoundType.cs" Link="Domain\Investment\InvestmentRoundType.cs" />
+    <Compile Include="..\Assets\Game\Investment\InvestmentOffer.cs" Link="Domain\Investment\InvestmentOffer.cs" />
+    <Compile Include="..\Assets\Game\Investment\InvestmentCatalog.cs" Link="Domain\Investment\InvestmentCatalog.cs" />
+    <Compile Include="..\Assets\Game\Investment\InvestmentService.cs" Link="Domain\Investment\InvestmentService.cs" />
+
     <Compile Include="..\Assets\Game\Missions\MissionDefinition.cs" Link="Domain\Missions\MissionDefinition.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionProgressBook.cs" Link="Domain\Missions\MissionProgressBook.cs" />
     <Compile Include="..\Assets\Game\Missions\MissionService.cs" Link="Domain\Missions\MissionService.cs" />
