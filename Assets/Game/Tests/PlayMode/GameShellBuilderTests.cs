@@ -45,8 +45,17 @@ namespace StartupEmpire.Tests.PlayMode
             Assert.IsNotNull(GameObject.Find("Button_Estudar Fundamentos"));
             Assert.IsNotNull(GameObject.Find("Button_Testar Produto"));
             Assert.IsNotNull(GameObject.Find("Button_Encerrar Dia"));
-            Assert.IsNotNull(GameObject.Find("Button_Products"));
-            Assert.IsNotNull(GameObject.Find("Button_Settings"));
+            Assert.IsNotNull(GameObject.Find("Button_Produtos"));
+            Assert.IsNotNull(GameObject.Find("Button_Mais"));
+            Assert.IsNotNull(GameObject.Find("Root").GetComponent<SafeAreaFitter>());
+            Assert.AreEqual(5, GameObject.Find("NavBar").transform.childCount,
+                "A navegação principal deve manter cinco alvos de toque grandes");
+            foreach (var navButton in GameObject.Find("NavBar").GetComponentsInChildren<Button>())
+            {
+                var rect = navButton.GetComponent<RectTransform>();
+                Assert.GreaterOrEqual(rect.anchorMax.x - rect.anchorMin.x, 0.19f,
+                    $"{navButton.name} ficou estreito demais para toque");
+            }
         }
 
         [UnityTest]
@@ -103,8 +112,8 @@ namespace StartupEmpire.Tests.PlayMode
             var officeStatusGo = GameObject.Find("StatusText");
             Assert.IsNotNull(officeStatusGo, "StatusText não foi encontrado antes da troca de tela");
 
-            var navButtonGo = GameObject.Find("Button_Products");
-            Assert.IsNotNull(navButtonGo, "Button_Products não foi encontrado");
+            var navButtonGo = GameObject.Find("Button_Produtos");
+            Assert.IsNotNull(navButtonGo, "Button_Produtos não foi encontrado");
             navButtonGo.GetComponent<Button>().onClick.Invoke();
             yield return null;
 
@@ -125,7 +134,7 @@ namespace StartupEmpire.Tests.PlayMode
             new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
             yield return null;
 
-            GameObject.Find("Button_Employees").GetComponent<Button>().onClick.Invoke();
+            GameObject.Find("Button_Equipe").GetComponent<Button>().onClick.Invoke();
             yield return null;
 
             var employeesBefore = GameRoot.Instance.State.Employees.Employees.Count;
@@ -175,18 +184,26 @@ namespace StartupEmpire.Tests.PlayMode
             new GameObject("GameRoot", typeof(GameRoot), typeof(AudioManager), typeof(GameShellBuilder));
             yield return null;
 
-            GameObject.Find("Button_Research").GetComponent<Button>().onClick.Invoke();
+            GameObject.Find("Button_Mais").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var moreMenu = GameObject.Find("MoreMenu");
+            Assert.IsNotNull(moreMenu);
+            Assert.IsTrue(moreMenu.activeInHierarchy);
+
+            GameObject.Find("Button_Pesquisa").GetComponent<Button>().onClick.Invoke();
             yield return null;
             var researchText = GameObject.Find("ResearchText").GetComponent<Text>();
             StringAssert.Contains("CONHECIMENTO", researchText.text);
 
-            GameObject.Find("Button_Company").GetComponent<Button>().onClick.Invoke();
+            GameObject.Find("Button_Empresa").GetComponent<Button>().onClick.Invoke();
             yield return null;
             var companyText = GameObject.Find("CompanyText").GetComponent<Text>();
             StringAssert.Contains("EMPRESA", companyText.text);
             StringAssert.Contains("CONCORRENTES", companyText.text);
 
-            GameObject.Find("Button_Character").GetComponent<Button>().onClick.Invoke();
+            GameObject.Find("Button_Mais").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            GameObject.Find("Button_Perfil").GetComponent<Button>().onClick.Invoke();
             yield return null;
             var characterText = GameObject.Find("CharacterText").GetComponent<Text>();
             StringAssert.Contains("PERFIL", characterText.text);

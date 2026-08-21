@@ -140,6 +140,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em AAA
 ### Fixed (continuação)
 - `WorkCyclesPerDay` era apenas informativo e o jogador podia repetir ações infinitamente. A quinta ação do dia agora falha sem alterar conhecimento/produto e informa que é preciso encerrar o dia.
 
+### Added (continuação — UX Android portrait)
+- `SafeAreaFitter`: normaliza `Screen.safeArea` para anchors do Canvas e reage somente quando resolução/insets mudam. Testes cobrem notch superior e barra de gestos inferior em 1080×2400.
+- Navegação principal reduzida de 13 botões ilegíveis para cinco alvos largos; nove destinos secundários ficam numa grade `Mais` 3×3.
+- Botão Voltar do Android fecha o Mais primeiro, retorna ao Início a partir de outra tela e só solicita saída quando já está no Início.
+- `AndroidBuilder` impõe portrait, desativa autorrotação landscape/upside-down e desativa renderização fora da safe area em todo build futuro.
+- Evidência: 31/31 EditMode e 8/8 PlayMode; APK 45.610.490 bytes, SHA-256 `6D6373E0679613059F9BA445D0305BBED08E9B47C541C61BAE39FA131B013D6F`, 0 erros/avisos; manifesto com `screenOrientation=1`.
+
 ### Known limitations
 - Unity Editor e Android SDK instalados, projeto compila sem erros, Audio implementado, 1 de 19 telas jogável, e um APK de debug real já foi gerado (ver acima). Restam: as outras 18 telas, arte final (visual atual é placeholder), otimização/AAB de publicação, balanceamento por playtesting — isso é o próximo trabalho, não mais um bloqueio de ambiente.
 - IPO (`InvestmentRoundType.Ipo`) está modelado no enum mas ainda não tem uma oferta/mecânica própria — ela não é uma simples troca de caixa por equity como as demais rodadas.

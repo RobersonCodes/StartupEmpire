@@ -16,6 +16,8 @@ namespace StartupEmpire.UI
         private Text _topBarText;
         private ScreenManager _screenManager;
         private EventModalBuilder _eventModal;
+        private GameObject _moreMenu;
+        private string _currentScreenId;
         private readonly Dictionary<string, IScreenPanel> _panelsById = new();
 
         private void Start()
@@ -23,6 +25,7 @@ namespace StartupEmpire.UI
             EnsureEventSystem();
             var canvas = BuildCanvas();
             var root = UiFactory.CreatePanel(canvas.transform, UiFactory.PanelBackground, "Root");
+            root.AddComponent<SafeAreaFitter>();
 
             _topBarText = UiFactory.CreateText(root.transform, "", 24, TextAnchor.MiddleLeft,
                 new Vector2(0.02f, 0.945f), new Vector2(0.98f, 0.99f), "TopBarText");
@@ -48,6 +51,7 @@ namespace StartupEmpire.UI
             RegisterPanel("Character", new CharacterScreenPanel(), contentGo.transform);
 
             BuildNavBar(root.transform);
+            BuildMoreMenu(root.transform);
 
             _eventModal = new EventModalBuilder();
             _eventModal.Build(canvas.transform);
@@ -63,12 +67,18 @@ namespace StartupEmpire.UI
 
         private void ShowScreen(string id)
         {
+            if (_moreMenu != null) _moreMenu.SetActive(false);
             _screenManager.Show(id);
-            if (_panelsById.TryGetValue(id, out var panel)) panel.Refresh();
+            if (_panelsById.TryGetValue(id, out var panel))
+            {
+                _currentScreenId = id;
+                panel.Refresh();
+            }
         }
 
         private void Update()
         {
+            if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
             if (GameRoot.Instance == null) return;
             var state = GameRoot.Instance.State;
             _topBarText.text =
@@ -84,16 +94,8 @@ namespace StartupEmpire.UI
             var navGo = UiFactory.CreatePanel(parent, UiFactory.NavBarColor, "NavBar");
             UiFactory.Stretch(navGo.GetComponent<RectTransform>(), new Vector2(0, 0), new Vector2(1, 0.095f));
 
-            var labels = new[]
-            {
-                "Office", "Products", "Employees", "Upgrades", "Store", "Finances",
-                "Stats", "Achv", "Missions", "Research", "Company", "Character", "Settings"
-            };
-            var ids = new[]
-            {
-                "Office", "Products", "Employees", "Upgrades", "Store", "Finances",
-                "Statistics", "Achievements", "Missions", "Research", "Company", "Character", "Settings"
-            };
+            var labels = new[] { "Início", "Produtos", "Equipe", "Empresa", "Mais" };
+            var ids = new[] { "Office", "Products", "Employees", "Company", "More" };
 
             var width = 1f / labels.Length;
             for (var i = 0; i < labels.Length; i++)
@@ -102,8 +104,64 @@ namespace StartupEmpire.UI
                 var minX = i * width;
                 var maxX = minX + width;
                 UiFactory.CreateButton(navGo.transform, labels[i], new Vector2(minX + 0.002f, 0.08f), new Vector2(maxX - 0.002f, 0.92f),
+                    () =>
+                    {
+                        if (id == "More") ToggleMoreMenu();
+                        else ShowScreen(id);
+                    });
+            }
+        }
+
+        private void BuildMoreMenu(Transform parent)
+        {
+            _moreMenu = UiFactory.CreatePanel(parent, new Color(0.06f, 0.08f, 0.12f, 0.98f), "MoreMenu");
+            UiFactory.Stretch(_moreMenu.GetComponent<RectTransform>(), new Vector2(0.02f, 0.105f), new Vector2(0.98f, 0.49f));
+
+            var labels = new[]
+            {
+                "Pesquisa", "Melhorias", "Loja", "Finanças", "Estatísticas",
+                "Conquistas", "Missões", "Perfil", "Config."
+            };
+            var ids = new[]
+            {
+                "Research", "Upgrades", "Store", "Finances", "Statistics",
+                "Achievements", "Missions", "Character", "Settings"
+            };
+
+            const int columns = 3;
+            const int rows = 3;
+            for (var i = 0; i < labels.Length; i++)
+            {
+                var id = ids[i];
+                var column = i % columns;
+                var row = i / columns;
+                var minX = column / (float)columns + 0.01f;
+                var maxX = (column + 1) / (float)columns - 0.01f;
+                var maxY = 1f - row / (float)rows - 0.02f;
+                var minY = 1f - (row + 1) / (float)rows + 0.02f;
+                UiFactory.CreateButton(_moreMenu.transform, labels[i], new Vector2(minX, minY), new Vector2(maxX, maxY),
                     () => ShowScreen(id));
             }
+
+            _moreMenu.SetActive(false);
+        }
+
+        private void ToggleMoreMenu()
+        {
+            _moreMenu.SetActive(!_moreMenu.activeSelf);
+            if (_moreMenu.activeSelf) _moreMenu.transform.SetAsLastSibling();
+        }
+
+        private void HandleBack()
+        {
+            if (_moreMenu != null && _moreMenu.activeSelf)
+            {
+                _moreMenu.SetActive(false);
+                return;
+            }
+
+            if (_currentScreenId != "Office") ShowScreen("Office");
+            else Application.Quit();
         }
 
         private static void EnsureEventSystem()

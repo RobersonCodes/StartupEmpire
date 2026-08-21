@@ -53,13 +53,13 @@
 [x] 21. Premium Currency (Gems: saldo, ledger, grant/spend, pronto para Play Billing depois)
 [x] 22. Store (boost de dev, boost de aquisição, aporte instantâneo, cosmético — sem mecânica predatória)
 [x] 23. Statistics — StatisticsService agrega o GameState num snapshot legível (telas in-game ficam para a etapa de UI)
-[~] 24. UI final (14/19 experiências: 13 telas navegáveis + modal de Events; faltam Splash, Main Menu, New Game, Continue e Development dedicada; navegação/eventos testados em PlayMode)
+[~] 24. UI final (14/19 experiências; navegação mobile com 5 destinos + Mais e safe area; faltam Splash, Main Menu, New Game, Continue e Development dedicada)
 [x] 25. Audio (AudioManager com volume independente por categoria; sem clipes — nenhum áudio original disponível ainda)
 [~] 26. Art polish (ícone original integrado; visual interno ainda é placeholder funcional)
-[ ] 27. Android optimization
-[x] 28. Tests — 92 `.NET` + 29 EditMode + 8 PlayMode (129 reais no cliente) + 22 no backend
+[~] 27. Android optimization (portrait/safe area/navegação corrigidos; device smoke/performance pendentes)
+[x] 28. Tests — 92 `.NET` + 31 EditMode + 8 PlayMode (131 reais no cliente) + 22 no backend
 [ ] 29. Balancing
-[x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.613.821 bytes, SHA-256 `435BF85574BEAEB0C87CAA74222B03CB620374CA65FCE07BFED04ECB03A000AD`, build IL2CPP+Gradle real (0 erros, 0 avisos) com ícone e calendário diário. AAB ainda não gerado.
+[x] 30. APK/AAB — **APK de debug atual gerado**: `Builds/Android/StartupEmpire-debug.apk`, 45.610.490 bytes, SHA-256 `6D6373E0679613059F9BA445D0305BBED08E9B47C541C61BAE39FA131B013D6F`, build real (0 erros/avisos), portrait confirmado no manifesto. AAB ainda não gerado.
 [ ] 31. Documentation
 ```
 

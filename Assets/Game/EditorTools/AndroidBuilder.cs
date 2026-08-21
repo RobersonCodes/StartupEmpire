@@ -19,6 +19,7 @@ namespace StartupEmpire.EditorTools
         public static void BuildDebugApk()
         {
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.startupempire.game");
+            ConfigureMobilePlayerSettings();
             ConfigureAndroidIcons();
 
             var buildPlayerOptions = new BuildPlayerOptions
@@ -37,6 +38,17 @@ namespace StartupEmpire.EditorTools
                 $"totalErrors={summary.totalErrors} totalWarnings={summary.totalWarnings} " +
                 $"sizeBytes={summary.totalSize} timeSeconds={summary.totalTime.TotalSeconds:F1} " +
                 $"outputPath={summary.outputPath}");
+        }
+
+        private static void ConfigureMobilePlayerSettings()
+        {
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+            PlayerSettings.Android.renderOutsideSafeArea = false;
+            Debug.Log("[AndroidBuilder] configured portrait orientation and safe-area rendering");
         }
 
         private static void ConfigureAndroidIcons()
